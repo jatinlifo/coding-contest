@@ -43,7 +43,7 @@ function Login() {
             const response = await axios.post('/coding/contest/user/login', { email, password });
 
             if (response.data.sucess) {
-                setMessage("Create Account Sucessfully")
+                setMessage("Login Sucessfully")
                 setIsLoggedIn(true);
                 const user = response.data.user
                 setUserId(user._id);

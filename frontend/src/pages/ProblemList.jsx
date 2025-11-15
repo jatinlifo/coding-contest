@@ -3,6 +3,7 @@ import axios from 'axios'
 import {useEffect, useState,} from 'react'
 import { Link } from 'react-router-dom';
 import { useProblem } from '../context/ProblemContext';
+import { useOwnerName} from '../context/OwnerContext';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -12,6 +13,8 @@ function ProblemList() {
     const [problems, setProblems] = useState([]);
     const { selectedProblems, toggleProblem } = useProblem();
     const navigate = useNavigate();
+
+    const { ownerName, numberOfUser } = useOwnerName();
 
 
     useEffect(() => {
@@ -32,6 +35,10 @@ function ProblemList() {
 
     return (
         <div className='text-white min-h-screen p-2'>
+            <div>
+                <h1>{ownerName}</h1>
+                <h2>{numberOfUser}</h2>
+            </div>
             <div className='flex justify-between px-35'>
                 <h1 className='font-bold text-2xl'>Select Problems</h1>
                 <button 

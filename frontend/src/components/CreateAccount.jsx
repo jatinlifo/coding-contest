@@ -34,7 +34,7 @@ function CreateAccount() {
             const response = await axios.post('/coding/contest/user/create-account', { fullname, dob, email, password });
 
             if (response.data.sucess) {
-                setMessage("Login Sucessfully")
+                setMessage("Create Account Sucessfully")
                 setTimeout(() => {
                     navigate('/contest');
                 }, 1500)

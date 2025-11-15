@@ -2,14 +2,17 @@ import React from 'react'
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useOwnerName } from '../context/OwnerContext'
 
 
 function RegisterContest() {
+
     const [ownerName, setOwnerName] = useState("")
     const [numerOfUser, setNumberOfUser] = useState("");
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
     const {setIsLoggedIn} = useAuth();
+    const {toggleDetails} = useOwnerName();
 
     //navigate the jab cancel pa click kare toh home pa bhej do
     const handleCancel = () => {
@@ -23,6 +26,11 @@ function RegisterContest() {
             setMessage("Please full fill the details");
             return;
         }
+        
+        toggleDetails(ownerName, numerOfUser);
+        setOwnerName(ownerName);
+        setNumberOfUser(numerOfUser);
+
         navigate('/user/contest/register-contest/select-problems')
     };
 

@@ -14,6 +14,7 @@ import RegisterContest from './pages/RegisterContest'
 import CodeEditor from './pages/CodeEditor'
 import ProblemList from './pages/ProblemList'
 import { ProblemProvider } from './context/ProblemContext'
+import { OwnerProvider } from './context/OwnerContext'
 import ShowSelectedProblems from './pages/ShowSelectedProblems'
 
 console.log("Problem Provider", ProblemProvider);
@@ -36,12 +37,21 @@ function App() {
               <Route path='/user/profile' element={<Profile />} />
               <Route path='/token' element={<Token />} />
               <Route path='/user/contest' element={<Contest />} />
-              <Route path='/user/contest/register-contest' element={<RegisterContest />} />
+              <Route
+                path='/user/contest/register-contest'
+                element={
+                  <OwnerProvider>
+                    <RegisterContest />
+                  </OwnerProvider>
+                }
+              />
               <Route
                 path='/user/contest/register-contest/select-problems'
                 element={
                   <ProblemProvider>
-                    <ProblemList />
+                    <OwnerProvider>
+                      <ProblemList />
+                    </OwnerProvider>
                   </ProblemProvider>
                 }
               />

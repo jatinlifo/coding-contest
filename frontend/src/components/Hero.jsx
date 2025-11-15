@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import CreateAccount from './CreateAccount'
+// import CreateAccount from './CreateAccount'
 import { useNavigate } from 'react-router-dom';
 
 function Hero() {
@@ -15,7 +15,7 @@ function Hero() {
     
     // move navigate create account
     const handleCreateAccount = () => {
-        navigate('/create-account')
+        navigate('/user/create-account')  
     }
     return (
         <div className='flex py-5 px-10 gap-5 text-white'>

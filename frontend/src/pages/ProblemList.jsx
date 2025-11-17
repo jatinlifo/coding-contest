@@ -16,12 +16,18 @@ function ProblemList() {
 
     const { ownerName, numberOfUser } = useOwnerName();
 
+    console.log("Comes to ownerName", ownerName);
+    console.log("Comes to number of user ", numberOfUser);
+
 
     useEffect(() => {
         const fetchProblems = async() => {
             try {
-                const res = await axios.get("/coding/contest/user/all-problems");
-                setProblems(res.data.problems);
+                const {data} = await axios.get("/coding/contest/user/all-problems");
+                console.log("React problem data", data);
+                const allProblems = data.problems.questions
+                console.log("React Questions", allProblems);
+                setProblems(allProblems);
             } catch (error) {
                 console.log("Error fetching Problems:", error)
             }
@@ -36,8 +42,9 @@ function ProblemList() {
     return (
         <div className='text-white min-h-screen p-2'>
             <div>
-                <h1>{ownerName}</h1>
-                <h2>{numberOfUser}</h2>
+                <h1 className='text-xl'>{ownerName}</h1>
+                <h2 className='text-xl'>{numberOfUser}</h2>
+                <button className='py-1 px-3 text-xl bg-blue-600'>Link</button>
             </div>
             <div className='flex justify-between px-35'>
                 <h1 className='font-bold text-2xl'>Select Problems</h1>
@@ -65,7 +72,7 @@ function ProblemList() {
                     </thead>
                     <tbody>
                         {problems.map((p, index) => (
-                            <tr key={p._id} className='border-t border-gray-700 hover:bg-gray-600 transition'>
+                            <tr key={p} className='border-t border-gray-700 hover:bg-gray-600 transition'>
                                 <td className='py-3 px-4 font-semibold'>{index + 1}</td>
                                 <td className='py-3 px-4 text-blue-400 font-semibold'>
                                     <Link to={`/problem/${p._id}`}>{p.title}</Link>
@@ -82,7 +89,7 @@ function ProblemList() {
                                     onClick={() => toggleProblem(p)}
                                     className='bg-gray-800 py-1 px-4 rounded-full cursor-pointer'
                                     >
-                                        {selectedProblems.some((sp) => sp._id === p._id)
+                                        {selectedProblems.some((sp) => sp.questionFrontendId === p.questionFrontendId)
                                         ? "Selected"
                                         : "Select"}
                                     </button>

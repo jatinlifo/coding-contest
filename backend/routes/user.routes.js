@@ -10,7 +10,6 @@ import {
 import {
     fetchCode, 
     saveCode,
-    addProblem,
     addTestCase,
     allProblems,
     getSingleProblem
@@ -33,7 +32,7 @@ router.route("/code").get(fetchCode)
 
 
 //code admin route only
-router.post("/add-problem",  addProblem);
+// router.post("/add-problem",  addProblem);
 router.post("/add-testcases/:problemId",  addTestCase);
 
 

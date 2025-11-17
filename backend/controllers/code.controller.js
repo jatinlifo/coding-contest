@@ -67,34 +67,34 @@ const fetchCode = async (req, res) => {
 };
 
 // ================= Add Problem =================
-const addProblem = async (req, res) => {
-    try {
-        const { title, description, difficulty, languages, testCases } = req.body;
+// const addProblem = async (req, res) => {
+//     try {
+//         const { title, description, difficulty, languages, testCases } = req.body;
 
-        const newProblem = new Problem({
-            title,
-            description,
-            difficulty,
-            languages,
-            testCases,
-        });
+//         const newProblem = new Problem({
+//             title,
+//             description,
+//             difficulty,
+//             languages,
+//             testCases,
+//         });
 
-        await newProblem.save();
+//         await newProblem.save();
 
-        return res.status(201).json({
-            success: true,
-            message: "Problem added successfully",
-            problem: newProblem,
-        });
+//         return res.status(201).json({
+//             success: true,
+//             message: "Problem added successfully",
+//             problem: newProblem,
+//         });
 
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error adding problem",
-            error,
-        });
-    }
-};
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: "Error adding problem",
+//             error,
+//         });
+//     }
+// };
 
 // ================= Add Testcase =================
 const addTestCase = async (req, res) => {
@@ -135,9 +135,13 @@ const addTestCase = async (req, res) => {
         });
     }
 };
-const lc = new LeetCode();
+
+
 // ================= Fetch LeetCode Problems =================
 const allProblems = async (req, res) => {
+    
+    
+    const lc = new LeetCode();
     try {
         const list = await lc.problems();
 
@@ -146,7 +150,7 @@ const allProblems = async (req, res) => {
             count: list.length,
             problems: list
         });
-
+        console.log("Problems list", list);
     } catch (err) {
         res.status(500).json({
             success: false,
@@ -219,7 +223,6 @@ const getSingleProblem = async (req, res) => {
 export {
     saveCode,
     fetchCode,
-    addProblem,
     addTestCase,
     allProblems,
     getSingleProblem

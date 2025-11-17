@@ -8,10 +8,10 @@ export const ProblemProvider = ({ children }) => {
 
     const toggleProblem = (problem) => {
         setSelectedProblems((prev) => {
-            const alreadySelected = prev.find((p) => p._id === problem._id);
+            const alreadySelected = prev.find((p) => p.questionFrontendId === problem.questionFrontendId);
 
             if (alreadySelected) {
-                return prev.filter((p) => p._id !== problem._id);
+                return prev.filter((p) => p.questionFrontendId !== problem.questionFrontendId);
             } else {
                 return [...prev, problem];
             }

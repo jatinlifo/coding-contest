@@ -12,7 +12,8 @@ import {
     saveCode,
     addProblem,
     addTestCase,
-    allProblems
+    allProblems,
+    getSingleProblem
 } from "../controllers/code.controller.js";
 
 
@@ -38,5 +39,6 @@ router.post("/add-testcases/:problemId",  addTestCase);
 
 //fetch all problems
 router.get("/all-problems", allProblems);
+router.get("/getsingleproblem/:slug" , getSingleProblem);
 
 export default router;  

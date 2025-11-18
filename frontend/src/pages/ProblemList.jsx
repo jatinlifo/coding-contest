@@ -72,10 +72,10 @@ function ProblemList() {
                     </thead>
                     <tbody>
                         {problems.map((p, index) => (
-                            <tr key={p} className='border-t border-gray-700 hover:bg-gray-600 transition'>
+                            <tr key={p.questionFrontendId} className='border-t border-gray-700 hover:bg-gray-600 transition'>
                                 <td className='py-3 px-4 font-semibold'>{index + 1}</td>
                                 <td className='py-3 px-4 text-blue-400 font-semibold'>
-                                    <Link to={`/problem/${p._id}`}>{p.title}</Link>
+                                    <Link to={`/problem/p.questionFrontendId`}>{p.title}</Link>
                                 </td>
                                 <td className={`py-3 px-4 font-semibold ${
                                     p.difficulty === "Easy" ? "text-green-400":

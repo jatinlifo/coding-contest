@@ -36,7 +36,7 @@ function CreateAccount() {
             if (response.data.sucess) {
                 setMessage("Create Account Sucessfully")
                 setTimeout(() => {
-                    navigate('/contest');
+                    navigate('/user/contest');
                 }, 1500)
             } else {
                 setMessage("Invalid Credationals")

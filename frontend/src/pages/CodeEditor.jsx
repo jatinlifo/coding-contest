@@ -2,18 +2,60 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { useProblem } from '../context/ProblemContext';
+import { useLocation } from 'react-router-dom';
 
 function CodeEditor() {
 
+    const { state } = useLocation();
+    const { problem } = state;
+
+    // if (!problem) {
+    //     alert("Not solve problem");
+    //     return;
+    // }
+
     const [code, setCode] = useState("");
-    const [title, setTitle] = useState("Two sum");
+    const [title, setTitle] = useState("");
+    const [difficulty, setDifficulty] = useState("");
+    const [descripation, setDescripation] = useState("");
+    const [constraint, setConstraint] = useState("");
     const [language, setLanguage] = useState("javascript");
     const [output, setOutput] = useState("");
     const { userId } = useAuth();
+    const [testCases, setTestCases] = useState([]);
 
-    const { selectedProblems } = useProblem();
 
-    console.log("Selected Problems is ", selectedProblems);
+    console.log("Selected Problems is ", problem);
+
+    setTitle(problem.title)
+    setDifficulty(problem.difficulty);
+    const titleSlug = problem.titleSlug;
+
+    useEffect(() => {
+        const fetchProblemDetails = async() => {
+    
+            try {
+                const res = await axios.get(`/coding/contest/user//getsingleproblem/${titleSlug}`);
+    
+                console.log("Slug response", res);
+    
+                if (res.data.success) {
+                    const lines = problem.exampleTestcases.split("\n");
+    
+                    for (let i=0; i < lines.length; i += 2) {
+                        testCases.push({
+                            input: lines[i],
+                            expected: lines[i + 1]
+                        });
+                    }
+                    setDescripation(res.data.content);
+                }
+            } catch (error) {
+                console.log("Error find to problem details", error);
+            }
+        }
+        fetchProblemDetails();
+    }, [problem])
 
     const languages = [
         { value: 'cpp', label: 'C++' },
@@ -66,13 +108,13 @@ function CodeEditor() {
     }
 
     return (
-        <div className='min-h-screen white text-white flex flex-col md:flex-row'>
+        <div className='min-h-screen white text-white flex flex-col md:flex-row'>  
             {/* Left section (Question) */}
             <div className='md:w-1/2 w-full border-b md:border-b-0  md:border-r-2 border-gray-700 p-6'>
-                <h2 className='text-2xl font-bold mb-2'>Question Title</h2>
-                <p className='text-gray-400'>
-                    Given an array of integers, return indices of
-                    the tow numbers such that they add up to target
+                <h2 className='text-2xl font-bold mb-2'>{title}</h2>
+                <p className='text-gray-400'
+                dangerouslySetInnerHTML={{__html: descripation }}
+                >
                 </p>
             </div>
 

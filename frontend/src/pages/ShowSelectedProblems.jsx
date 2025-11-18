@@ -1,11 +1,27 @@
 import React from 'react'
 import { useProblem } from '../context/ProblemContext';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function ShowSelectedProblems () {
 
     const {selectedProblems} = useProblem();
 
+    if (!selectedProblems) {
+        alert("Please Select the Problems:");
+        return;
+    }
+
+    const navigate = useNavigate();
+
     console.log("This is selectedProblems", selectedProblems);
+
+    const handleSolve = (problem) => {
+        
+        navigate('/user/coding/contest/code-editor', {
+            state: problem,
+        })
+    }
 
     return (
         <div className='text-white min-h-screen p-2'>
@@ -24,10 +40,10 @@ function ShowSelectedProblems () {
                     </thead>
                     <tbody>
                         {selectedProblems.map((p, index) => (
-                            <tr key={p._id} className='border-t border-gray-700'>
+                            <tr key={index} className='border-t border-gray-700'>
                                 <td className='py-3 px-4 font-semibold'>{index + 1}</td>
                                 <td className='py-3 px-4 text-blue-400 font-semibold'>
-                                    <Link to={`/problem/${p._id}`}>{p.title}</Link>
+                                    <Link to={`/problem/${p.questionFrontendId}`}>{p.title}</Link>
                                 </td>
                                 <td className={`py-3 px-4 font-semibold ${
                                     p.difficulty === "Easy" ? "text-green-400":
@@ -38,12 +54,12 @@ function ShowSelectedProblems () {
                                 </td>
                                 <td className='font-semibold px-4 py-3'>
                                     <button
-                                    onClick={() => toggleProblem(p)}
+                                    onClick={() => handleSolve(p)}
                                     className='bg-gray-800 py-1 px-4 rounded-full cursor-pointer'
                                     >
-                                        {selectedProblems.some((sp) => sp._id === p._id)
-                                        ? "Selected"
-                                        : "Select"}
+                                        {selectedProblems.some((sp) => sp.questionFrontendId === p.questionFrontendId)
+                                        ? "Solve"
+                                        : "Please Select Problem"}
                                     </button>
                                 </td>
                             </tr>

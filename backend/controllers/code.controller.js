@@ -150,7 +150,7 @@ const allProblems = async (req, res) => {
             count: list.length,
             problems: list
         });
-        console.log("Problems list", list);
+        // console.log("Problems list", list);
     } catch (err) {
         res.status(500).json({
             success: false,
@@ -161,6 +161,8 @@ const allProblems = async (req, res) => {
 
 const getSingleProblem = async (req, res) => {
     const { slug } = req.params;
+
+    console.log("Request comes slug", slug);
 
     if (!slug) {
         return res.status(400).json({

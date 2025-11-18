@@ -19,7 +19,7 @@ function ShowSelectedProblems () {
     const handleSolve = (problem) => {
         
         navigate('/user/coding/contest/code-editor', {
-            state: problem,
+            state: {problem}
         })
     }
 

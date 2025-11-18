@@ -7,7 +7,12 @@ import { useLocation } from 'react-router-dom';
 function CodeEditor() {
 
     const { state } = useLocation();
-    const { problem } = state;
+    console.log("state", state);
+
+    const problem = state?.problem;
+
+    console.log("Selected Problems is comes ", problem);
+
 
     // if (!problem) {
     //     alert("Not solve problem");
@@ -25,37 +30,47 @@ function CodeEditor() {
     const [testCases, setTestCases] = useState([]);
 
 
-    console.log("Selected Problems is comes ", problem);
-
-    setTitle(problem.title)
-    setDifficulty(problem.difficulty);
     const titleSlug = problem.titleSlug;
 
+    console.log("Title slug", titleSlug);
+
     useEffect(() => {
-        const fetchProblemDetails = async() => {
-    
+        const fetchProblemDetails = async () => {
+
             try {
-                const res = await axios.get(`/coding/contest/user//getsingleproblem/${titleSlug}`);
-    
+                const res = await axios.get(`/coding/contest/user/getsingleproblem/${titleSlug}`);
+                const data = res.data;
+
                 console.log("Slug response", res);
-    
-                if (res.data.success) {
-                    const lines = problem.exampleTestcases.split("\n");
-    
-                    for (let i=0; i < lines.length; i += 2) {
-                        testCases.push({
+
+                console.log("Slug Data", data);
+
+                if (data.success) {
+                    const lines = data.problem.exampleTestcases.split("\n");
+                    const formattedCases = [];
+
+                    console.log("Lines of testcases", lines);
+
+                    for (let i = 0; i < lines.length; i += 2) {
+                        formattedCases.push({
                             input: lines[i],
                             expected: lines[i + 1]
                         });
                     }
-                    setDescripation(res.data.content);
+                    setDescripation(data.problem.content);
+                    setTitle(problem.title)
+                    setDifficulty(problem.difficulty);
+                    setTestCases(formattedCases);
                 }
             } catch (error) {
                 console.log("Error find to problem details", error);
             }
+        };
+
+        if (titleSlug) {
+            fetchProblemDetails();
         }
-        fetchProblemDetails();
-    }, [problem])
+    }, [titleSlug]);
 
     const languages = [
         { value: 'cpp', label: 'C++' },
@@ -108,14 +123,22 @@ function CodeEditor() {
     }
 
     return (
-        <div className='min-h-screen white text-white flex flex-col md:flex-row'>  
+        <div className='min-h-screen white text-white flex flex-col md:flex-row'>
             {/* Left section (Question) */}
             <div className='md:w-1/2 w-full border-b md:border-b-0  md:border-r-2 border-gray-700 p-6'>
-                <h2 className='text-2xl font-bold mb-2'>{title}</h2>
-                <p className='text-gray-400'
-                dangerouslySetInnerHTML={{__html: descripation }}
+                <h2 className='text-2xl font-bold mb-2'>Q.1 {title}</h2>
+                <p className='text-yellow-500 font-bold'>{difficulty}</p>
+                <p className='text-gray-400 roblem-description" '
+                    dangerouslySetInnerHTML={{ __html: descripation }}
                 >
                 </p>
+
+                {/* {testCases.map((t, i) => (
+                    <div key={i}>
+                        <p>Input : {t.input}</p>
+                        <p>Expected: {t.expected}</p>
+                    </div>
+                ))} */}
             </div>
 
             {/* Right Section (Code Editor) */}
@@ -128,8 +151,8 @@ function CodeEditor() {
                         onChange={(e) => setLanguage(e.target.value)}
                         className='bg-gray-800 text-white border-gray-700 rounded-lg px-3 py-2 focus:outline-none'
                     >
-                        {languages.map((lang) => (
-                            <option key={lang.value} value={lang.value}>
+                        {languages.map((lang, index) => (
+                            <option key={index} value={lang.value}>
                                 {lang.label}
                             </option>
                         ))}

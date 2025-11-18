@@ -25,7 +25,7 @@ function CodeEditor() {
     const [testCases, setTestCases] = useState([]);
 
 
-    console.log("Selected Problems is ", problem);
+    console.log("Selected Problems is comes ", problem);
 
     setTitle(problem.title)
     setDifficulty(problem.difficulty);

@@ -145,7 +145,7 @@ const allProblems = async (req, res) => {
     try {
         const list = await lc.problems();
 
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             count: list.length,
             problems: list

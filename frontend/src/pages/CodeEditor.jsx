@@ -23,41 +23,65 @@ function CodeEditor() {
     const [language, setLanguage] = useState("javascript");
     const [output, setOutput] = useState("");
     const { userId } = useAuth();
-    const [testCases, setTestCases] = useState([]);
+    const [inputTestCases, setInputTestCases] = useState([]);
+    const [outputTestCases, setOutputTestCases] = useState([]);
+    const [mergeTestCases, setMergeTestCases] = useState([]);
 
     const titleSlug = problem.titleSlug;
 
     useEffect(() => {
-        const fetchProblemDetails = async () => {
+    const fetchProblemDetails = async () => {
+        try {
+            const res = await axios.get(`/coding/contest/user/getsingleproblem/${titleSlug}`);
+            const data = res.data;
 
-            try {
-                const res = await axios.get(`/coding/contest/user/getsingleproblem/${titleSlug}`);
-                const data = res.data;
+            console.log("Data is ", data);
 
-                if (data.success) {
-                    const lines = data.problem.exampleTestcases.split("\n");
-                    const formattedCases = [];
+            if (data.success) {
+                const lines = data.problem.exampleTestcases.split("\n");
+                const formattedCases = [];
 
-                    for (let i = 0; i < lines.length; i += 2) {
-                        formattedCases.push({
-                            input: lines[i],
-                            expected: lines[i + 1]
-                        });
-                    }
-                    setDescripation(data.problem.content);
-                    setTitle(problem.title)
-                    setDifficulty(problem.difficulty);
-                    setTestCases(formattedCases);
+                for (let i = 0; i < lines.length; i += 2) {
+                    formattedCases.push({
+                        input: lines[i],
+                    });
                 }
-            } catch (error) {
-                console.log("Error find to problem details", error);
-            }
-        };
 
-        if (titleSlug) {
-            fetchProblemDetails();
+                setDescripation(data.problem.content);
+                setTitle(problem.title);
+                setDifficulty(problem.difficulty);
+                setInputTestCases(formattedCases);
+                
+            }
+        } catch (error) {
+            console.log("Error find to problem details", error);
         }
-    }, [titleSlug]);
+    };
+
+    if (titleSlug) fetchProblemDetails();
+}, [titleSlug]);
+
+console.log("Input testcases", inputTestCases);
+// 🔥 extract outputs when description is updated
+useEffect(() => {
+    if (!descripation) return;
+
+   function extractAllOutputs(html) {
+    const regex = /<strong>Output:<\/strong>\s*([^\n<]+)/g;
+    const outputs = [];
+    let match;
+
+    while ((match = regex.exec(html)) !== null) {
+        outputs.push(match[1].trim());
+    }
+
+    return outputs;
+}
+
+    const outputs = extractAllOutputs(descripation);
+    setOutputTestCases(outputs);
+    console.log("Extracted outputs:", outputs);
+}, [descripation]);
 
     const languages = [
         { value: 'cpp', label: 'C++' },
@@ -171,12 +195,12 @@ function CodeEditor() {
                     </button>
                 </div>
 
-                {output && (
+                {/* {output && ( */}
                     <div className="mt-6 bg-gray-900 border border-gray-700 rounded-lg p-4">
                         <h3 className="text-xl font-bold mb-4">Test Cases:</h3>
 
                         <div className="flex gap-4 overflow-x-auto">
-                            {testCases.map((tc, index) => (
+                            {inputTestCases.map((tc, index) => (
                                 <div
                                     key={index}
                                     className="w-60 min-w-[240px] bg-gray-800 border border-gray-700 rounded-lg p-4"
@@ -213,7 +237,7 @@ function CodeEditor() {
                             ))}
                         </div>
                     </div>
-                )}
+                {/* // )} */}
             </div>
         </div>
     )

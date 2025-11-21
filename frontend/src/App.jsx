@@ -19,9 +19,6 @@ import ShowSelectedProblems from './pages/ShowSelectedProblems'
 
 console.log("Problem Provider", ProblemProvider);
 
-
-
-
 function App() {
 
   return (

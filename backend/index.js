@@ -1,5 +1,6 @@
 import express from 'express'
 import userRouter from './routes/user.routes.js'
+import judgeRoutes from "./routes/judge.routes.js";
 import cors from 'cors'
 import connectDB from './db/index.js';
 import dotenv from 'dotenv'
@@ -14,7 +15,7 @@ const port = process.env.PORT || 8000;
 app.use(cookieParser())
 
 app.use(cors({
-    origin:"http://localhost:5174",
+    origin:"http://localhost:5173",
     credentials: true,
 }));
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 
 app.use("/coding/contest/user", userRouter)
+app.use("/api/judge", judgeRoutes);
 
 connectDB()
 .then(() => {

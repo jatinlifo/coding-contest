@@ -106,7 +106,7 @@ function CodeEditor() {
             input: tc.input,
             extra: tc.extra,
             expected: outputTestCases[index] || "",
-            // actualOutput: tc.actualOutput || ""
+            actualOutput: "",
         }));
         console.log("Traversh time output", outputTestCases[0])
         console.log("Traversh time output", outputTestCases[1])
@@ -163,7 +163,7 @@ function CodeEditor() {
             const res = await axios.post("http://localhost:8000/api/judge/run", {
                 code,
                 language,
-                testcases: testCases
+                testcases: inputTestCases
             });
 
             const results = res.data.results;
@@ -290,12 +290,12 @@ function CodeEditor() {
                                     </div>
 
                                     {/* Actual Output */}
-                                    {/* <div>
+                                    <div>
                                         <p className="text-gray-400 text-sm mb-1">Your Output:</p>
                                         <pre className="bg-gray-900 p-2 rounded text-sm text-yellow-300 overflow-x-auto">
                                             {tc.actualOutput || "— run code to view output —"}
                                         </pre>
-                                    </div> */}
+                                    </div>
                                 </div>
                             ))}
                         </div>

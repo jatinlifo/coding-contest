@@ -30,58 +30,91 @@ function CodeEditor() {
     const titleSlug = problem.titleSlug;
 
     useEffect(() => {
-    const fetchProblemDetails = async () => {
-        try {
-            const res = await axios.get(`/coding/contest/user/getsingleproblem/${titleSlug}`);
-            const data = res.data;
+        const fetchProblemDetails = async () => {
+            try {
+                const res = await axios.get(`/coding/contest/user/getsingleproblem/${titleSlug}`);
+                const data = res.data;
 
-            console.log("Data is ", data);
+                console.log("Data is ", data);
 
-            if (data.success) {
-                const lines = data.problem.exampleTestcases.split("\n");
-                const formattedCases = [];
+                if (data.success) {
+                    const lines = data.problem.exampleTestcases.split("\n");
+                    const formattedCases = [];
 
-                for (let i = 0; i < lines.length; i += 2) {
-                    formattedCases.push({
-                        input: lines[i],
-                    });
+                    for (let i = 0; i < lines.length; i++) {
+                        const current = lines[i].trim();
+                        const next = lines[i + 1]?.trim();
+                        
+                        console.log("Next hai ya nahi", next);
+
+                        // If next line exists and is NOT an array → treat as target
+                        if (next && !next.startsWith("[")) {
+                            formattedCases.push({
+                                input: current,
+                                extra: next   // target, k, n, threshold etc.
+                            });
+                            i++; // skip next line
+                        } else {
+                            // Next is array OR does not exist → simple input
+                            formattedCases.push({
+                                input: current,
+                                extra: null
+                            });
+                        }
+                    }
+
+                    setDescripation(data.problem.content);
+                    setTitle(problem.title);
+                    setDifficulty(problem.difficulty);
+                    setInputTestCases(formattedCases);
+
                 }
-
-                setDescripation(data.problem.content);
-                setTitle(problem.title);
-                setDifficulty(problem.difficulty);
-                setInputTestCases(formattedCases);
-                
+            } catch (error) {
+                console.log("Error find to problem details", error);
             }
-        } catch (error) {
-            console.log("Error find to problem details", error);
+        };
+
+        if (titleSlug) fetchProblemDetails();
+    }, [titleSlug]);
+
+    console.log("Input testcases", inputTestCases);
+    // 🔥 extract outputs when description is updated
+    useEffect(() => {
+        if (!descripation) return;
+
+        function extractAllOutputs(html) {
+            const regex = /<strong>Output:<\/strong>\s*([^\n<]+)/g;
+            const outputs = [];
+            let match;
+
+            while ((match = regex.exec(html)) !== null) {
+                outputs.push(match[1].trim());
+            }
+
+            return outputs;
         }
-    };
 
-    if (titleSlug) fetchProblemDetails();
-}, [titleSlug]);
+        const outputs = extractAllOutputs(descripation);
+        setOutputTestCases(outputs);
+        console.log("Extracted outputs:", outputs);
+    }, [descripation]);
 
-console.log("Input testcases", inputTestCases);
-// 🔥 extract outputs when description is updated
-useEffect(() => {
-    if (!descripation) return;
+    useEffect(() => {
+        if (inputTestCases.length === 0 || outputTestCases.length === 0) return;
 
-   function extractAllOutputs(html) {
-    const regex = /<strong>Output:<\/strong>\s*([^\n<]+)/g;
-    const outputs = [];
-    let match;
+        const merged = inputTestCases.map((tc, index) => ({
+            input: tc.input,
+            extra: tc.extra,
+            expected: outputTestCases[index] || "",
+            // actualOutput: tc.actualOutput || ""
+        }));
+        console.log("Traversh time output", outputTestCases[0])
+        console.log("Traversh time output", outputTestCases[1])
 
-    while ((match = regex.exec(html)) !== null) {
-        outputs.push(match[1].trim());
-    }
+        setMergeTestCases(merged);
+    }, [outputTestCases.length, inputTestCases.length]);
 
-    return outputs;
-}
-
-    const outputs = extractAllOutputs(descripation);
-    setOutputTestCases(outputs);
-    console.log("Extracted outputs:", outputs);
-}, [descripation]);
+    console.log("All testCases", mergeTestCases);
 
     const languages = [
         { value: 'cpp', label: 'C++' },
@@ -195,12 +228,12 @@ useEffect(() => {
                     </button>
                 </div>
 
-                {/* {output && ( */}
+                {output && (
                     <div className="mt-6 bg-gray-900 border border-gray-700 rounded-lg p-4">
                         <h3 className="text-xl font-bold mb-4">Test Cases:</h3>
 
                         <div className="flex gap-4 overflow-x-auto">
-                            {inputTestCases.map((tc, index) => (
+                            {mergeTestCases.map((tc, index) => (
                                 <div
                                     key={index}
                                     className="w-60 min-w-[240px] bg-gray-800 border border-gray-700 rounded-lg p-4"
@@ -218,6 +251,14 @@ useEffect(() => {
                                         </pre>
                                     </div>
 
+                                    {/* Extra Parameter (only if exists) */}
+                                    {tc.extra && (
+                                        <div className="mb-2">
+                                            <p className="text-gray-400 text-sm mb-1">Extra:</p>
+                                            <pre className="bg-gray-900 p-2 rounded text-sm">{tc.extra}</pre>
+                                        </div>
+                                    )}
+
                                     {/* Expected Output */}
                                     <div className="mb-2">
                                         <p className="text-gray-400 text-sm mb-1">Expected:</p>
@@ -227,20 +268,21 @@ useEffect(() => {
                                     </div>
 
                                     {/* Actual Output */}
-                                    <div>
+                                    {/* <div>
                                         <p className="text-gray-400 text-sm mb-1">Your Output:</p>
                                         <pre className="bg-gray-900 p-2 rounded text-sm text-yellow-300 overflow-x-auto">
                                             {tc.actualOutput || "— run code to view output —"}
                                         </pre>
-                                    </div>
+                                    </div> */}
                                 </div>
                             ))}
                         </div>
                     </div>
-                {/* // )} */}
+                )}
             </div>
         </div>
     )
 }
 
 export default CodeEditor;
+

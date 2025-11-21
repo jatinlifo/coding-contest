@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useProblem } from '../context/ProblemContext';
 import { useOwnerName} from '../context/OwnerContext';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 
 
@@ -14,10 +15,11 @@ function ProblemList() {
     const { selectedProblems, toggleProblem } = useProblem();
     const navigate = useNavigate();
 
-    const { ownerName, numberOfUser } = useOwnerName();
+    const {state} = useLocation();
+    const {ownerName, numerOfUser} = state ?? {};
 
     console.log("Comes to ownerName", ownerName);
-    console.log("Comes to number of user ", numberOfUser);
+    console.log("Comes to number of user ", numerOfUser);
 
 
     useEffect(() => {
@@ -42,9 +44,15 @@ function ProblemList() {
     return (
         <div className='text-white min-h-screen p-2'>
             <div>
-                <h1 className='text-xl'>{ownerName}</h1>
-                <h2 className='text-xl'>{numberOfUser}</h2>
-                <button className='py-1 px-3 text-xl bg-blue-600'>Link</button>
+                <div className='flex gap-10  items-center px-2 py-1 mb-5'>
+                    <h1 className='font-bold text-4xl'>Your name</h1>
+                    <h1 className='text-4xl font-bold'>{ownerName}</h1>
+                </div>
+                <div className='flex gap-6 items-center px-2 py-1 mb-5'>
+                    <h1 className='font-bold text-3xl'>Number of user</h1>
+                    <h2 className='text-3xl font-bold'>{numerOfUser}</h2>
+                </div>
+                <button className='py-1 px-5 text-xl bg-blue-600 rounded-full font-bold cursor-pointer hover:underline hover:bg-blue-800'>Link</button>
             </div>
             <div className='flex justify-between px-35'>
                 <h1 className='font-bold text-2xl'>Select Problems</h1>

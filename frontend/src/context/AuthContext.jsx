@@ -1,7 +1,5 @@
 import { createContext, useContext, useState } from "react";
-
 //ya sabko provide kar dega
-
 const AuthContext = createContext();
 
 export function AuthProvider({children}) {

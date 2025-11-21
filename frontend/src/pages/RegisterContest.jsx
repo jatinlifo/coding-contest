@@ -31,7 +31,9 @@ function RegisterContest() {
         setOwnerName(ownerName);
         setNumberOfUser(numerOfUser);
 
-        navigate('/user/contest/register-contest/select-problems')
+        navigate('/user/contest/register-contest/select-problems', {
+            state: {ownerName, numerOfUser}
+        })
     };
 
 

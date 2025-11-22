@@ -102,8 +102,30 @@ function CodeEditor() {
     };
 
     const handleRunCode = async () => {
-        setOutput(`Running your ${language} code...\n\n✅ Output: 42`);
-    }
+        try {
+            const res = await axios.post("http://localhost:8000/api/judge/run", {
+                code,
+                language,
+                testcases: testCases
+            });
+
+            const results = res.data.results;
+
+            // Update each test case with actual output
+            const updated = testCases.map((tc, i) => ({
+                ...tc,
+                actualOutput: results[i].actualOutput
+            }));
+
+            setTestCases(updated);
+            setOutput("done");
+
+        } catch (err) {
+            console.log("Error:", err);
+            alert("Error running code");
+        }
+    };
+
 
     return (
         <div className='min-h-screen white text-white flex flex-col md:flex-row'>

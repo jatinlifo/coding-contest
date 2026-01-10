@@ -1,75 +1,82 @@
-import React from 'react'
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Contest() {
-
-  const {isLoggedIn} = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
-  const handlRegister = () => {
-
-    if (isLoggedIn === true) {
-      navigate('/user/contest/register-contest')
+  const handleRegister = () => {
+    if (isLoggedIn) {
+      navigate('/user/contest/register-contest');
     } else {
-      alert("Please login")
-      navigate('/')
+      alert('Please login to join the contest');
+      navigate('/user/login');
     }
-  }
+  };
 
   return (
-    <>
-      <div className=''>
-        <h1 className='text-white font-bold text-4xl text-center mb-8'>
-          Join Contest</h1>
-        <div className='flex items-center justify-center gap-3 w-full'>
-          <div className='w-130 px-3 py-4 bg-gray-600'>
+    <div className="px-6 md:px-12 py-16">
 
-            <div className='rounded-xl overflow-hidden'>
-              <img src="/hero.avif"
-                alt="hero"
-                className='object-cover'
-              />
-            </div>
-            <div className='flex justify-between'>
-              <div>
-                <h1 className='text-white text-lg font-bold'>Global Weekly Contest</h1>
-                <p className='text-white'>Sunday 8 am to 10 am</p>
-              </div>
-              <button
-                className='text-white font-bold px-4 py-1 mt-2 
-                rounded-full bg-green-600 cursor-pointer hover:bg-green-700'
-                onClick={handlRegister}
-              >
-                Register
-              </button>
-            </div>
-          </div>
-          <div className='w-130 px-3 py-4 bg-gray-600'>
+      {/* Page Heading */}
+      <h1 className="text-white font-bold text-3xl md:text-4xl text-center mb-12">
+        Join Contest
+      </h1>
 
-            <div className='rounded-xl overflow-hidden'>
-              <img src="/hero.avif"
-                alt=""
-                className='object-cover'
-              />
-            </div>
-            <div className='flex justify-between'>
-              <div>
-                <h1 className='text-white text-lg font-bold'>Global Weekly Contest</h1>
-                <p className='text-white'>Sunday 8 am to 10 am</p>
-              </div>
-              <button
-                className='text-white font-bold px-4 py-1 mt-2 
-                      rounded-full bg-green-600 cursor-pointer hover:bg-green-700'
-              >
-                Register
-              </button>
-            </div>
+      {/* ===== Single Contest Card ===== */}
+      <div className="
+        max-w-5xl mx-auto
+        bg-gray-800
+        rounded-2xl
+        overflow-hidden
+        flex flex-col md:flex-row
+        shadow-lg
+      ">
+
+        {/* Left : Image */}
+        <div className="w-full md:w-1/2">
+          <img
+            src="/contest.png"
+            alt="Contest"
+            className="w-full h-64 md:h-full object-cover"
+          />
+        </div>
+
+        {/* Right : Details */}
+        <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+          
+          <div>
+            <h2 className="text-white text-2xl font-bold mb-3">
+              Global Weekly Contest
+            </h2>
+
+            <p className="text-gray-300 text-base leading-relaxed">
+              Participate in this open coding contest and solve DSA problems
+              in a competitive environment. You can join anytime and test
+              your problem-solving skills against others.
+            </p>
           </div>
+
+          <div className="mt-6">
+            <button
+              className="
+                bg-green-600 hover:bg-green-700
+                text-white font-semibold
+                px-6 py-3
+                rounded-full
+                transition
+              "
+              onClick={handleRegister}
+            >
+              Register
+            </button>
+          </div>
+
         </div>
       </div>
-    </>
-  )
+
+    </div>
+  );
 }
 
 export default Contest;

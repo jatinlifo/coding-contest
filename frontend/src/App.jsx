@@ -16,6 +16,8 @@ import ProblemList from './pages/ProblemList'
 import { ProblemProvider } from './context/ProblemContext'
 import { OwnerProvider } from './context/OwnerContext'
 import ShowSelectedProblems from './pages/ShowSelectedProblems'
+import JoinRoom from './pages/JoinRoom'
+import WaitingRoom from './pages/WaitingRoom'
 
 console.log("Problem Provider", ProblemProvider);
 
@@ -26,6 +28,9 @@ function App() {
       <Router>
         <AuthProvider>
           <Routes>
+            {/* global link  */}
+            <Route path='/join/:roomCode' element={<JoinRoom />} /> 
+
             <Route element={<Layout />}>
               <Route path='/' element={<Home />} />
               <Route path='/user/about' element={<About />} />
@@ -34,6 +39,7 @@ function App() {
               <Route path='/user/profile' element={<Profile />} />
               <Route path='/token' element={<Token />} />
               <Route path='/user/contest' element={<Contest />} />
+              <Route path='/contest/waiting/:roomCode' element={<WaitingRoom />}/>
               <Route
                 path='/user/contest/register-contest'
                 element={

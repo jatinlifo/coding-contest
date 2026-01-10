@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 
@@ -10,22 +10,17 @@ function Login() {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
-    const {setIsLoggedIn} = useAuth();
-    const {setUserId} = useAuth();
+    const location = useLocation();
+    const { setIsLoggedIn } = useAuth();
+    const { setUserId } = useAuth();
+
+    //redirect destination (join or contest)
+    const redirectTo = location.state?.redirectTo || "/user/contest"
 
     //navigate the jab cancel pa click kare toh home pa bhej do
     const handleCancel = () => {
         navigate('/')
     }
-
-    // axios.get('/coding/contest/user/refresh-token')
-    //   .then((res) => {
-    //     console.log("Refresh token")
-    //     console.log(res.data)
-    //   })
-    //   .catch((e)=> {
-    //     console.log("Error is ", e);
-    //   })
 
     //check user login
     const handleLogin = async (e) => {
@@ -40,7 +35,10 @@ function Login() {
         console.log("Password: ", password);
 
         try {
-            const response = await axios.post('/coding/contest/user/login', { email, password });
+            const response = await axios.post('/coding/contest/user/login',
+                { email, password },
+                { withCredentials: true }
+            );
 
             if (response.data.sucess) {
                 setMessage("Login Sucessfully")
@@ -48,13 +46,33 @@ function Login() {
                 const user = response.data.user
                 setUserId(user._id);
                 setTimeout(() => {
-                    navigate('/user/contest')
-                }, 1500)
+                    navigate(redirectTo)
+                }, 1000)
             } else {
                 setMessage("Invalid Credationals")
             }
         } catch (error) {
-            setMessage(error.response?.data?.message || "Server Error login time")
+            const err = error.response?.data;
+            console.log("ERROR", err);
+
+
+            if (err?.code === "USER_NOT_FOUND") {
+                setMessage(err.message);
+                setTimeout(() => {
+                    navigate("/user/create-account", {
+                        state: { email, redirectTo },
+                    });
+                }, 1500)
+                return;
+            }
+            //server error never redirect
+            // if (status === 500) {
+            //     setMessage("Server is down. Please try again later.");
+            //     return;
+            // }
+
+            //all other errors
+            setMessage(err?.message || "Login failed");
         }
     };
 

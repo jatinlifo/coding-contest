@@ -2,19 +2,27 @@ import mongoose from 'mongoose'
 
 const testCaseSchema = new mongoose.Schema({
     input: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed,
         required: true,
     },
     expectedOutput: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed,
         required: true,
     }
 });
 
 const problemSchema = new mongoose.Schema({
+    problemNumber: {
+        type: Number,
+        required: true,
+        unique: true,
+    },
     title: {
         type: String,
         required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
     },
     description: {
         type: String,
@@ -22,7 +30,7 @@ const problemSchema = new mongoose.Schema({
     },
     difficulty: {
         type: String,
-        eum: ["Easy", "Medium", "Hard"],
+        enum: ["Easy", "Medium", "Hard"],
         default: "Easy"
     },
     languages: [
@@ -32,5 +40,6 @@ const problemSchema = new mongoose.Schema({
     ],
     testCases: [testCaseSchema],
 }); 
+
 
 export const Problem = mongoose.model("Problem", problemSchema);

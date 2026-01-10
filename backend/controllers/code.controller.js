@@ -67,34 +67,52 @@ const fetchCode = async (req, res) => {
 };
 
 // ================= Add Problem =================
-// const addProblem = async (req, res) => {
-//     try {
-//         const { title, description, difficulty, languages, testCases } = req.body;
+const addProblem = async (req, res) => {
+    try {
+        const {problemNumber, title, description, difficulty, languages, testCases } = req.body;
 
-//         const newProblem = new Problem({
-//             title,
-//             description,
-//             difficulty,
-//             languages,
-//             testCases,
-//         });
+        const newProblem = new Problem({
+            problemNumber,
+            title,
+            description,
+            difficulty,
+            languages,
+            testCases,
+        });
 
-//         await newProblem.save();
+        //check by probelm number or title
+        const existingProblem = await Problem.findOne({
+            $or: [
+                {problemNumber },
+                {title: new RegExp(`^${title}$`, "i")}
+            ]
+        });
 
-//         return res.status(201).json({
-//             success: true,
-//             message: "Problem added successfully",
-//             problem: newProblem,
-//         });
+        if (existingProblem) {
+            return res
+            .status(409)
+            .json({
+                sucess: false,
+                message: "Problem already exists",
+            })
+        }
 
-//     } catch (error) {
-//         return res.status(500).json({
-//             success: false,
-//             message: "Error adding problem",
-//             error,
-//         });
-//     }
-// };
+        await newProblem.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Problem added successfully",
+            problem: newProblem,
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error adding problem",
+            error,
+        });
+    }
+};
 
 // ================= Add Testcase =================
 const addTestCase = async (req, res) => {
@@ -137,25 +155,30 @@ const addTestCase = async (req, res) => {
 };
 
 
-// ================= Fetch LeetCode Problems =================
+// ================= Fetch Problems on DataBase =================
 const allProblems = async (req, res) => {
-    
-    
-    const lc = new LeetCode();
-    try {
-        const list = await lc.problems();
 
-        res.status(201).json({
+    try {
+        const problems = await Problem.find({})
+        .select("problemNumber title difficulty")
+        .sort({problemNumber: 1});
+
+        return res
+        .status(200)
+        .json({
             success: true,
-            count: list.length,
-            problems: list
+            cout: problems.length,
+            problems
         });
-        // console.log("Problems list", list);
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
+
+    } catch (error) {
+        return res
+        .status(500)
+        .json({
+            sucess: false,
+            message: "Failed to fetch problems",
+            error: error.message,
+        })
     }
 };
 
@@ -225,6 +248,7 @@ const getSingleProblem = async (req, res) => {
 export {
     saveCode,
     fetchCode,
+    addProblem,
     addTestCase,
     allProblems,
     getSingleProblem

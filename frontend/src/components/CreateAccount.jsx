@@ -1,7 +1,8 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext';
 
 function CreateAccount() {
 
@@ -12,6 +13,17 @@ function CreateAccount() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+    const { setIsLoggedIn, setUserId } = useAuth();
+
+    const redirectTo = location.state?.redirectTo || "/user/contest";
+
+    //email prefill (When redirected form login)
+    useEffect(() => {
+        if (location.state?.email) {
+            setEmail(location.state.email);
+        }
+    }, [location.state])
 
     //click cancel redirect home page
     const handleCancel = () => {
@@ -22,7 +34,7 @@ function CreateAccount() {
         e.preventDefault();
 
         if (!email || !password || !fullname || !dob) {
-            setMessage("All fields are required please enter");
+            setMessage("All fields are required");
             return;
         }
         console.log("Fullname:", fullname)
@@ -31,18 +43,23 @@ function CreateAccount() {
         console.log("Password: ", password);
 
         try {
-            const response = await axios.post('/coding/contest/user/create-account', { fullname, dob, email, password });
+            const response = await axios.post('/coding/contest/user/create-account', 
+                { fullname, dob, email, password },
+                { withCredentials: true }
+            );
 
             if (response.data.sucess) {
+                setIsLoggedIn(true);
+                setUserId(response.data.user._id);
                 setMessage("Create Account Sucessfully")
                 setTimeout(() => {
-                    navigate('/user/contest');
+                    navigate(redirectTo);
                 }, 1500)
             } else {
                 setMessage("Invalid Credationals")
             }
         } catch (error) {
-            setMessage(error.response?.data?.message || "Server Error")
+            setMessage(error.response?.data?.message || "Failed to create account")
         }
     };
 

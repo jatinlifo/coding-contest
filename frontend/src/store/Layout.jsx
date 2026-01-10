@@ -14,7 +14,7 @@ function Layout() {
     const location = useLocation();
     const {isLoggedIn, setIsLoggedIn} = useAuth();
 
-    const showHero = location.pathname === '/';
+    // const showHero = location.pathname === '/';
 
     
   useEffect(() => {
@@ -44,12 +44,12 @@ function Layout() {
     return (
         <>
          <Navbar />
-         {showHero && <Hero />}
+         {/* {showHero && <Hero />} */}
          
          <main className='p-6'>
             <Outlet />
          </main>
-         {/* <Footer /> */}
+         <Footer />
         </>
     )
 }

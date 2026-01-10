@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {  verifyJWT } from "../middlewares/auth.middleare.js";
+import {  verifyJWT } from "../middlewares/auth.middleware.js";
 import {
     loginUser,
     createAccountUser,
@@ -10,10 +10,13 @@ import {
 import {
     fetchCode, 
     saveCode,
+    addProblem,
     addTestCase,
     allProblems,
     getSingleProblem
 } from "../controllers/code.controller.js";
+
+import {generateLink} from '../controllers/contest.controller.js'
 
 
 const router = Router();
@@ -32,12 +35,14 @@ router.route("/code").get(fetchCode)
 
 
 //code admin route only
-// router.post("/add-problem",  addProblem);
+router.post("/add-problem",  addProblem);
 router.post("/add-testcases/:problemId",  addTestCase);
 
 
 //fetch all problems
 router.get("/all-problems", allProblems);
 router.get("/getsingleproblem/:slug" , getSingleProblem);
+
+// router.route("/generate-link").post(verifyJWT, generateLink);
 
 export default router;  

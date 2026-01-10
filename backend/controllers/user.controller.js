@@ -25,18 +25,18 @@ const generateAccessAndRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId)
 
-        const accessToken =  user.generateAccessToken(); 
+        const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
         user.refreshToken = refreshToken
-        await user.save({validateBeforeSave: false})
+        await user.save({ validateBeforeSave: false })
 
         console.log(`I am access token ${accessToken} and \n`)
         console.log("I am refresh token ", refreshToken);
 
         return { accessToken, refreshToken }
 
-        
+
     } catch (error) {
         return new Error(500, "Something went wrong while generating access and refresh token")
     }
@@ -72,15 +72,15 @@ const createAccountUser = async (req, res) => {
     }
 
     // password crypt
-    const hashedPassword = await bcrypt.hash(password, 10);  // 10 = salt rounds
+    // const hashedPassword = await bcrypt.hash(password, 10);  // 10 = salt rounds
     // console.log("I am crypt password:",hashedPassword)
 
     //entry the data on DATABASE
     const user = await User.create({
         fullname: fullname,
         dob: dob,
-        email: email, 
-        password: hashedPassword
+        email: email,
+        password: password
     })
 
     //DB sa data select
@@ -109,104 +109,119 @@ const createAccountUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
 
-    const { email, password } = req.body;
-    console.log("Email is ", email);
-    console.log("Password is ", password);
+    try {
+        const { email, password } = req.body;
+        console.log("Email is ", email);
+        console.log("Password is ", password);
 
-    if (!email && !password) {
+        if (!email && !password) {
+            return res
+                .status(400)
+                .json({
+                    sucess: false,
+                    message: "Email and password are required"
+                });
+        }
+
+        //check user exist or not
+        const user = await User.findOne({ email });
+        console.log("Data Base email ", user?.email);
+        console.log("Data Base password", user?.password);
+
+        if (!user) {
+            return res
+                .status(404)
+                .json({
+                    sucess: false,
+                    message: "User does not exist please create your account",
+                    code: "USER_NOT_FOUND",
+                })
+        }
+
+        //compare password
+        const isPasswordValid = await user.isPasswordCorrect(password);
+
+        if (!isPasswordValid) {
+            return res
+                .status(401)
+                .json({ sucess: false, message: "Invalid password" });
+        }
+
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
+        console.log("access token", accessToken);
+        console.log("refresh token", refreshToken);
+
+        //sending user info without password
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");;
+
+        //send sucesss response  
         return res
-            .status(400)
+            .status(200)
+            .cookie("accessToken", accessToken, optionsAccessToken)
+            .cookie("refreshToken", refreshToken, optionsRefreshToken)
+            .json({
+                sucess: true,
+                message: "User login sucessfullly",
+                user: loggedInUser,
+            });
+    } catch (error) {
+        console.log("Login error: ", error);
+        return res
+            .status(500)
             .json({
                 sucess: false,
-                message: "Email and password are required"
-            });
+                message: "Server error during login",
+            })
     }
 
-    //check user exist or not
-    const user = await User.findOne({ email });
-    console.log("Data Base email ", user.email);
-    console.log("Data Base password", user.password);
-
-    if (!user) {
-        return res
-            .status(404)
-            .json({ sucess: false, message: "User not found" })
-    }
-
-    //compare password
-    const isPasswordValid = await user.isPasswordCorrect(password);
-
-    if (!isPasswordValid) {
-        return res
-            .status(401)
-            .json({ sucess: false, message: "Invalid password" });
-    }
-
-    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
-    console.log("access token", accessToken);
-    console.log("refresh token", refreshToken);
-
-    //sending user info without password
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");;
-
-    //send sucesss response  
-    return res
-        .status(200)
-        .cookie("accessToken",  accessToken, optionsAccessToken)  
-        .cookie("refreshToken", refreshToken, optionsRefreshToken)  
-        .json({
-            sucess: true,
-            message: "User login sucessfullly",
-            user: loggedInUser,
-        });
 }
 
 const logoutUser = async (req, res) => {
 
-   try {
-     await User.findByIdAndUpdate(
-         req.user._id,
-         {
-             $unset: {
-                 refreshToken: 1
-             }
-         },
-         {
-             new: true 
-         }
-     );
- 
-     console.log("Request comes to logout function")
-     return res
-     .status(200)
-     .clearCookie("accessToken", optionsAccessToken)
-     .clearCookie("refreshToken", optionsRefreshToken)
-     .json({sucess: true, message: "User logged Out"})
-   } catch (error) {
-      console.log("Logout error: ", error);
-      res
-      .status(500)
-      .json({sucess: false,message: "Logout Failed"})
-   }
+    try {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $unset: {
+                    refreshToken: 1
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        console.log("Request comes to logout function")
+        return res
+            .status(200)
+            .clearCookie("accessToken", optionsAccessToken)
+            .clearCookie("refreshToken", optionsRefreshToken)
+            .json({ sucess: true, message: "User logged Out" })
+    } catch (error) {
+        console.log("Logout error: ", error);
+        res
+            .status(500)
+            .json({ sucess: false, message: "Logout Failed" })
+    }
 }
 
 
 
 //access the token jo user already login hai
 const refreshAccessToken = async (req, res) => {
-    
+
     console.log("HEADERS:", req.headers);
     console.log("COOKIES:", req.cookies);
     const incomingRefreshToken = req.cookies.refreshToken
     // const incomingAccessToken = req.cookies.accessToken   || req.body.accessToken;
-    
+
     // console.log("INCOMING ACCESS TOKEN", incomingAccessToken)
-    console.log("INCOMING REFRESH TOKEN",incomingRefreshToken)
+    console.log("INCOMING REFRESH TOKEN", incomingRefreshToken)
 
     if (!incomingRefreshToken) {
         return res
-        .status(401)
-        .json({sucess: false, message:"Unauthorized request time to access refresh token"})
+            .status(401)
+            .json({ sucess: false, message: "Unauthorized request time to access refresh token" })
     }
 
     try {
@@ -218,35 +233,35 @@ const refreshAccessToken = async (req, res) => {
 
         if (!user) {
             return res
-            .status(401)
-            .json({sucess: false, message: "Invalid refresh token time to access id throw refresh token"})
+                .status(401)
+                .json({ sucess: false, message: "Invalid refresh token time to access id throw refresh token" })
         }
 
         if (incomingRefreshToken !== user?.refreshToken) {
             return res
-            .status(401)
-            .json({sucess: false, message: "Refresh token is expire or used"})
+                .status(401)
+                .json({ sucess: false, message: "Refresh token is expire or used" })
         }
 
-        const {accessToken: newAccessToken, refreshToken: newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(user._id)
         console.log("New access token", newAccessToken);
         console.log("New Refresh token", newRefreshToken);
 
         return res
-        .status(200)
-        .cookie("accessToken", newAccessToken, optionsAccessToken)
-        .cookie("refreshToken", newRefreshToken, optionsRefreshToken)
-        .json(
-            {
-                sucess: true,
-                message: "Access token refreshed generte new tokens"
-            }
-        )
+            .status(200)
+            .cookie("accessToken", newAccessToken, optionsAccessToken)
+            .cookie("refreshToken", newRefreshToken, optionsRefreshToken)
+            .json(
+                {
+                    sucess: true,
+                    message: "Access token refreshed generte new tokens"
+                }
+            )
 
     } catch (error) {
         return res
-        .status(401)
-        .json({sucess: true, message: "Invalid refresh token time to access refresh token"})
+            .status(401)
+            .json({ sucess: true, message: "Invalid refresh token time to access refresh token" })
     }
 }
 

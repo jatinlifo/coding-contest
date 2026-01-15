@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext';
 import {socket} from '../socket.js'
@@ -9,9 +9,16 @@ function WaitingRoom() {
     const { roomCode } = useParams();
     const navigate = useNavigate();
     const { userId } = useAuth();
-
+    console.log("USer id ", userId);
     const [room, setRoom] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isOwner, setIsOwner] = useState(false);
+
+    const { state } = useLocation();
+    const {roomName, contestTime, selectedProblems} = state || {};
+
+    // console.log("Owner comes", isOwner);
+    console.log("Problems IDS", selectedProblems);
 
     // ================= HTTP VALIDATION =================
     useEffect(() => {
@@ -24,6 +31,9 @@ function WaitingRoom() {
                 );
                 console.log("Room data", res.data);
                 // setRoom(res?.data);
+                if (res?.data.isOwner) {
+                    setIsOwner(true);
+                }
 
             } catch (error) {
                 alert("Failed to load room");
@@ -53,22 +63,35 @@ function WaitingRoom() {
         });
 
         //contest start
-        socket.on("contest-started", () => {
-            navigate(`/user/coding/contest/code-editor/${roomCode}`);
+        socket.on("contest-started", ({roomCode, problems, contestTime}) => {
+            console.log("Contest time to share start contest", contestTime);
+            console.log("Problems to share start contest", problems);
+            navigate(`/user/coding/contest/start-contest/${roomCode}`, {
+                state: {
+                    problems,
+                    contestTime,
+                    roomName,
+                }
+            });
         });
 
         socket.on("room-closed", (data) => {
             alert(data.message);
             socket.disconnect();
             navigate("/");
+        });
+
+        socket.on("error-message", ({ message }) => {
+            alert(message);
         })
 
         return () => {
             socket.off("room-update");
             socket.off("contest-started");
             socket.off("room-closed");
+            socket.off("error-message");
         };
-    }, [loading, roomCode]);
+    }, [loading, roomCode, navigate]);
 
     const handleLeaveRoom = () => {
 
@@ -89,14 +112,26 @@ function WaitingRoom() {
         // } catch (error) {
         //     alert("Only owner can start contest");
         // }/
-        socket.emit("start-contest", { roomCode });
+
+        if (!selectedProblems || selectedProblems.length === 0) {
+            alert("Please select at least on problem before starting the contest");
+            return;
+        }
+        socket.emit("start-contest", {
+            roomCode,
+            problems: selectedProblems,
+            contestTime
+        });
     };
 
     if (loading || !room) {
         return <p className='text-white text-center'>Loading...</p>
     }
-
-    const isOwner = room.owner.id === userId;
+    console.log("ROOM vs ROOM", room);
+    if (room?.isOwner) {
+        setIsOwner(true);
+    }
+    // const isOwner = room?.owner?.id === userId;
 
     return (
         <div className="min-h-screen bg-gray-900 text-white flex justify-center px-4 pt-16 md:pt-24">

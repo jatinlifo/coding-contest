@@ -33,7 +33,7 @@ const contestSchema  = new mongoose.Schema({
     ],
     status: {
         type: String,
-        enum: ["waiting", "running", "ended"],
+        enum: ["waiting", "running", "ended", "cancelled"],
         default: "waiting",
     },
 },{ timestamps: true});

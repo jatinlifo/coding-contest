@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client'
 
-export const socket = io("http://localhost:8000", {
+export const socket = io("http://localhost:8001", {
     withCredentials: true, // cookies ke liya
 })

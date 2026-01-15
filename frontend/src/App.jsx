@@ -18,6 +18,7 @@ import { OwnerProvider } from './context/OwnerContext'
 import ShowSelectedProblems from './pages/ShowSelectedProblems'
 import JoinRoom from './pages/JoinRoom'
 import WaitingRoom from './pages/WaitingRoom'
+import StartContest from './pages/StartContest'
 
 console.log("Problem Provider", ProblemProvider);
 
@@ -40,6 +41,7 @@ function App() {
               <Route path='/token' element={<Token />} />
               <Route path='/user/contest' element={<Contest />} />
               <Route path='/contest/waiting/:roomCode' element={<WaitingRoom />}/>
+              <Route path='/user/coding/contest/start-contest/:roomCode' element={<StartContest />}/>
               <Route
                 path='/user/contest/register-contest'
                 element={
@@ -67,7 +69,7 @@ function App() {
                 }
               />
               <Route
-                path='/user/coding/contest/code-editor'
+                path='/user/coding/contest/code-editor/:problemId'
                 element={
                   <ProblemProvider>
                     <CodeEditor />

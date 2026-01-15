@@ -127,18 +127,31 @@ function ProblemList() {
           className="bg-blue-600 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition">
           {inviteLink ? "Copy Link" : " Generate Link"}
         </button>
-
-        {inviteLink && (
           <button
           onClick={()=> {
-            const roomCode = getRoomCodeFromLink();
-            navigate(`/contest/waiting/${roomCode}`);
+            if (selectedProblems.length === 0) {
+              alert("Please select at least one problem before joining");
+              return;
+            }
+            let roomCode = inviteLink ? getRoomCodeFromLink() : state.roomCode;
+
+            if (!roomCode) {
+              alert("Room code not found. Generate link once.")
+            }
+            navigate(`/contest/waiting/${roomCode}`, {
+              state: {
+                roomName,
+                numberOfUsers,
+                contestTime,
+                selectedProblems,
+                isOwner: true,
+              }
+            });
           }}
           className='bg-green-600 px-5 py-1 rounded-full font-semibold hover:bg-green-700 transition'
           >
             Join
           </button>
-        )}
       </div>
 
       {/* ===== HEADER ===== */}

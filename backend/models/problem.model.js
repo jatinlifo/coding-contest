@@ -8,6 +8,14 @@ const testCaseSchema = new mongoose.Schema({
     expectedOutput: {
         type: mongoose.Schema.Types.Mixed,
         required: true,
+    },
+    explanation: {
+        type: String,
+        default: "",
+    },
+    isHidden: {
+        type: Boolean,
+        default: true,
     }
 });
 
@@ -33,13 +41,40 @@ const problemSchema = new mongoose.Schema({
         enum: ["Easy", "Medium", "Hard"],
         default: "Easy"
     },
-    languages: [
-        {
-            type: String
-        }
-    ],
-    testCases: [testCaseSchema],
-}); 
+    constraints: {
+        type: String,
+        required: true,
+    },
+    score: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    timeLimit: {
+        type: Number, // milliseconds
+        default: 1000
+    },
+    memoryLimit: {
+        type: Number, // Mb
+        default: 256
+    },
+    languages: {
+            type: [String],
+            enum: ["cpp", "java", "python", "c", "javascript",],
+            required: true
+    },
+    testCases: {
+        type: [testCaseSchema],
+        validate: [
+            v => v.length > 0,
+            "At least one test case is required"
+        ]
+    },
+    // isActive: {
+     // type: Boolean,
+    //     default: true,
+    // }
+}, {timestamps: true}); 
 
 
 export const Problem = mongoose.model("Problem", problemSchema);

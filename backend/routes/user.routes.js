@@ -16,7 +16,7 @@ import {
     getSingleProblem
 } from "../controllers/code.controller.js";
 
-import {generateLink} from '../controllers/contest.controller.js'
+// import {generateLink} from '../controllers/contest.controller.js'
 
 
 const router = Router();
@@ -38,10 +38,10 @@ router.route("/code").get(fetchCode)
 router.post("/add-problem",  addProblem);
 router.post("/add-testcases/:problemId",  addTestCase);
 
-
+1
 //fetch all problems
 router.get("/all-problems", allProblems);
-router.get("/getsingleproblem/:slug" , getSingleProblem);
+router.get("/getsingleproblem/:problemId" , getSingleProblem);
 
 // router.route("/generate-link").post(verifyJWT, generateLink);
 

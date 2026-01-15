@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true }))
 =========================== */
 app.use("/coding/contest/user", userRouter);
 app.use("/coding/contest/user", contestRouter);
-app.use("/api/judge", judgeRoutes);
+app.use("/coding/api/judge", judgeRoutes);
 
 
 /* ===========================
@@ -79,6 +79,7 @@ const emitRoomState = async (io, roomCode) => {
             id: contest.ownerId._id,
             name: contest.ownerId.fullname,
         },
+        isOwner: contest.isOwner,
         participants: contest.participants.map((p, index) => ({
             id: p.userId._id,
             name: p.userId.fullname,
@@ -169,10 +170,18 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("start-contest", async ({ roomCode }) => {
+    socket.on("start-contest", async ({ roomCode, problems, contestTime }) => {
 
         try {
+            console.log("Problems ids comes", problems);
             const userId = socket.user._id;
+
+            if (!problems || problems.length === 0) {
+                socket.emit("error", {
+                    message: "Problems not selected"
+                });
+                return;
+            }
 
             const contest = await Contest.findOne({ roomCode });
 
@@ -195,7 +204,8 @@ io.on("connection", (socket) => {
             //notify everyone
             io.to(roomCode).emit("contest-started", {
                 message: "Contest has started",
-                contestTime: contest.contestTime,
+                problems: problems,
+                contestTime: contestTime,
             });
 
         } catch (error) {
@@ -220,9 +230,23 @@ io.on("connection", (socket) => {
                     continue;
                 }
 
+                // owner discconects
+                if (contest.ownerId.toString() === userId.toString()) {
+
+                    contest.status = "cancelled";
+                    await contest.save();
+
+                    io.to(roomCode).emit("room-closed", {
+                        message: "Owner diconnected. Contest cancelled"
+                    });
+
+                    io.in(roomCode).socketsLeave(roomCode);
+                    return;
+                }
+
                 //participant remove
                 contest.participants = contest.participants.filter(
-                    (p) => p.userId.toString() !== socket.userId
+                    (p) => p.userId.toString() !== socket._id.toString()
                 );
 
                 await contest.save();

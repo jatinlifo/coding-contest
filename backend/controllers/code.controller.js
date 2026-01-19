@@ -71,162 +71,190 @@ const fetchCode = async (req, res) => {
 const submitCode = async (req, res) => {
 
     try {
-        const { problemId, contestId, code, language, userId } = req.body;
+    const { userId, problemId, code, language } = req.body;
 
-        if (!problemId || !contestId || !code || !language || !userId) {
-            return res
-                .status(400)
-                .json({
-                    success: false,
-                    message: "Missing fields",
-                });
-        }
+    const problem = await Problem.findById(problemId);
 
-        const problem = await Problem.findById(problemId);
+    if (!problem) {
+        return res
+        .status(400)
+        .json({
+            success: false,
+            message: "Problem not found"
+        })
+    }
+    const testcases = problem.testCases;
+    const score = problem.score;
 
-        if (!problem) {
-            return res
-                .status(404)
-                .json({
-                    success: false,
-                    message: "Problem not found",
-                });
-        }
+    console.log("Problem find", problem);
+    console.log("test cases", testcases);
 
-        // Check All testacases (Public + hidden)
-        const allTestCases = problem.testCases.map((tc => ({
-            input: tc.input,
-            expectedOutput: tc.expectedOutput,
-        })));
+    if (!code || !language || !Array.isArray(testcases)) {
+      return res.status(400).json({
+        success: false,
+        message: "code, language, testcases are required",
+      });
+    }
 
-        //Call judge
-        const judgeRes = await axios.post(
-            "http://localhost:8000/api/judge/submit",
-            {
-                code,
-                language,
-                testCases: allTestCases,
-                timeLimit: problem.timeLimit,
-                memoryLimit: problem.memoryLimit,
-            }
+    const langMap = { cpp: 54, java: 62, python: 71, javascript: 63 };
+    const language_id = langMap[language];
+
+    if (!language_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid language",
+      });
+    }
+
+    let verdict = "Accepted";
+    let passedCount = 0;
+    let failedCount = 0;
+    let time = 0;
+    let memory = 0;
+
+    for (const tc of testcases) {
+      try {
+        const submission = await axios.post(
+          "https://ce.judge0.com/submissions?wait=true",
+          {
+            source_code: code,
+            language_id,
+            stdin: tc.input ?? "",
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+            timeout: 20000,
+          }
         );
 
-        const results = judgeRes.data.results;
+        const data = submission.data;
 
-        //final verdict
-        let verdict = "Accepted";
+        console.log("SUBMIT DATA", data);
 
-        for (const r of results) {
-            if (r.status !== "AC") {
-                verdict = r.status;
-                break;
-            }
+        const stdout = (data.stdout || "").trim();
+        const stderr = (data.stderr || "").trim();
+        const compileOut = (data.compile_output || "").trim();
+        const status = data?.status?.description || "Unknown";
+        time = (data.time || "").trim();
+        memory = (data.memory || "").trim();
+
+        const actualOutput = stdout || compileOut || stderr || "";
+
+        const expected = (tc.expected ?? "").trim();
+
+        // ✅ If compilation error / runtime error => direct fail
+        if (status !== "Accepted") {
+          verdict = status; // "Compilation Error", "Runtime Error", etc.
+          failedCount++;
+          break;
         }
 
-        // ======= SCORE LOGIC ============
-        const score = verdict === "Accepted" ? problem.score : 0;
+        // ✅ output mismatch => Wrong Answer
+        if (expected && actualOutput.trim() !== expected) {
+          verdict = "Wrong Answer";
+          failedCount++;
+          break;
+        }
 
-        // ========= save submission ==========
-
-        await Submission.create({
-            contestId,
-            problemId,
-            userId,
-            verdict,
-            score,
-        });
-
-        return res.status(200)
-            .json({
-                success: true,
-                verdict,
-                score,
-                results,
-            });
-    } catch (error) {
-        console.error("SUBMIT ERROR:", error);
-        return res
-            .status(500)
-            .json({
-                success: false,
-                message: "Submission failed",
-            })
+        passedCount++;
+      } catch (error) {
+        verdict = "Judge Error";
+        failedCount++;
+        break;
+      }
     }
+
+    const total = testcases.length;
+
+    return res.json({
+      success: true,
+      verdict,
+      total,
+      passedCount,
+      failedCount: total - passedCount,
+      score,
+      time,
+      memory,
+    });
+  } catch (err) {
+    console.error("SUBMIT ERROR:", err);
+    return res.status(500).json({ success: false, message: "Submit failed" });
+  }
 }
 
 // ================= Add Problem =================
 const addProblem = async (req, res) => {
-  try {
-    const {
-      problemNumber,
-      title,
-      description,
-      difficulty,
-      constraints,
-      score,
-      timeLimit,
-      memoryLimit,
-      languages,
-      testCases,
-    } = req.body;
+    try {
+        const {
+            problemNumber,
+            title,
+            description,
+            difficulty,
+            constraints,
+            score,
+            timeLimit,
+            memoryLimit,
+            languages,
+            testCases,
+        } = req.body;
 
-    /* ================= VALIDATION ================= */
-    if (
-      !problemNumber ||
-      !title ||
-      !description ||
-      !difficulty ||
-      !languages ||
-      !testCases
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All required fields must be provided",
-      });
+        /* ================= VALIDATION ================= */
+        if (
+            !problemNumber ||
+            !title ||
+            !description ||
+            !difficulty ||
+            !languages ||
+            !testCases
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "All required fields must be provided",
+            });
+        }
+
+        /* ================= DUPLICATE CHECK ================= */
+        const existingProblem = await Problem.findOne({
+            $or: [
+                { problemNumber },
+                { title: new RegExp(`^${title}$`, "i") },
+            ],
+        });
+
+        if (existingProblem) {
+            return res.status(409).json({
+                success: false,
+                message: "Problem already exists",
+            });
+        }
+
+        /* ================= CREATE PROBLEM ================= */
+        const newProblem = await Problem.create({
+            problemNumber,
+            title: title.trim().toLowerCase(),
+            description,
+            difficulty,
+            constraints,
+            score,
+            timeLimit,
+            memoryLimit,
+            languages,
+            testCases,
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Problem added successfully",
+            problem: newProblem,
+        });
+
+    } catch (error) {
+        console.error("ADD PROBLEM ERROR:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error adding problem",
+        });
     }
-
-    /* ================= DUPLICATE CHECK ================= */
-    const existingProblem = await Problem.findOne({
-      $or: [
-        { problemNumber },
-        { title: new RegExp(`^${title}$`, "i") },
-      ],
-    });
-
-    if (existingProblem) {
-      return res.status(409).json({
-        success: false,
-        message: "Problem already exists",
-      });
-    }
-
-    /* ================= CREATE PROBLEM ================= */
-    const newProblem = await Problem.create({
-      problemNumber,
-      title: title.trim().toLowerCase(),
-      description,
-      difficulty,
-      constraints,
-      score,
-      timeLimit,
-      memoryLimit,
-      languages,
-      testCases,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Problem added successfully",
-      problem: newProblem,
-    });
-
-  } catch (error) {
-    console.error("ADD PROBLEM ERROR:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error adding problem",
-    });
-  }
 };
 
 // ================= Add Testcase =================
@@ -318,7 +346,7 @@ const getSingleProblem = async (req, res) => {
         console.log("Fetch Problem", problem);
 
         //separate public testcases
-        
+
         const publicTestCases = problem.testCases
             .filter(tc => tc.isHidden == false)
             .map(tc => ({

@@ -13,7 +13,8 @@ import {
     addProblem,
     addTestCase,
     allProblems,
-    getSingleProblem
+    getSingleProblem,
+    getSelectedProblems
 } from "../controllers/code.controller.js";
 
 // import {generateLink} from '../controllers/contest.controller.js'
@@ -42,6 +43,7 @@ router.post("/add-testcases/:problemId",  addTestCase);
 //fetch all problems
 router.get("/all-problems", allProblems);
 router.get("/getsingleproblem/:problemId" , getSingleProblem);
+router.get("/get-selected-problems", getSelectedProblems);
 
 // router.route("/generate-link").post(verifyJWT, generateLink);
 

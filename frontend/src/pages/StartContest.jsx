@@ -11,7 +11,11 @@ function StartContest() {
 
     // ================ CLICK HANDLER
     const handleProblemClick = (problemId) => {
-        navigate(`/user/coding/contest/code-editor/${problemId}`)
+        navigate(`/user/coding/contest/code-editor/${problemId}`, {
+          state: {
+            problems: problems
+          }
+        })
     }
 
    return (
@@ -76,6 +80,8 @@ function StartContest() {
       </div>
     </div>
   );
+
+  
 }
 
 

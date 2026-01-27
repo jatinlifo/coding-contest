@@ -383,6 +383,44 @@ const getSingleProblem = async (req, res) => {
 
 };
 
+const getSelectedProblems = async (req, res) => {
+
+    try {
+        const { problemsIds } = req.body;
+
+        if (!problemsIds || !Array.isArray(problemsIds)) {
+            return res
+            .status(400)
+            .json({
+                success: false,
+                message: "ProblemIds array required",
+            });
+        }
+
+        const problems = await Problem.find({
+            _id: {$in: problemsIds},
+        })
+        .select("_id title difficulty problemNumber")
+        .sort({problemNumber: 1});
+
+        return res
+        .status(200)
+        .json({
+            success: true,
+            problems,
+        });
+
+    } catch (error) {
+        console.log("getSelectedProblems error:", error);
+        return res
+        .status(500)
+        .json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
 export {
     saveCode,
     fetchCode,
@@ -390,5 +428,6 @@ export {
     addProblem,
     addTestCase,
     allProblems,
-    getSingleProblem
+    getSingleProblem,
+    getSelectedProblems,
 };

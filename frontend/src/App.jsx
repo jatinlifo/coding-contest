@@ -19,6 +19,7 @@ import ShowSelectedProblems from './pages/ShowSelectedProblems'
 import JoinRoom from './pages/JoinRoom'
 import WaitingRoom from './pages/WaitingRoom'
 import StartContest from './pages/StartContest'
+import ContestRanking from './pages/ContestRanking'
 
 console.log("Problem Provider", ProblemProvider);
 
@@ -42,6 +43,7 @@ function App() {
               <Route path='/user/contest' element={<Contest />} />
               <Route path='/contest/waiting/:roomCode' element={<WaitingRoom />}/>
               <Route path='/user/coding/contest/start-contest/:roomCode' element={<StartContest />}/>
+              <Route path='/user/coding/contest/ranking' element={<ContestRanking />}/>
               <Route
                 path='/user/contest/register-contest'
                 element={

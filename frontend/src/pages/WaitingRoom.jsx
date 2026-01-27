@@ -59,7 +59,9 @@ function WaitingRoom() {
 
         //listen room updates
         socket.on("room-update", (data) => {
-            setRoom(data);
+        //    if (isOwner !== true) {
+             setRoom(data);
+        //    }
         });
 
         //contest start
@@ -123,7 +125,9 @@ function WaitingRoom() {
             contestTime
         });
     };
-
+    
+    console.log("Loading", loading);
+    console.log("ROOM", room);
     if (loading || !room) {
         return <p className='text-white text-center'>Loading...</p>
     }

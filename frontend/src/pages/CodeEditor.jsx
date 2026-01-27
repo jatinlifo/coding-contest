@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useProblem } from '../context/ProblemContext';
 import { useLocation, useParams } from 'react-router-dom';
 import Editor from "@monaco-editor/react";   // ⭐ ADDED
+import { useNavigate } from 'react-router-dom';
 
 function CodeEditor() {
 
@@ -27,6 +28,17 @@ function CodeEditor() {
     const [solved, setSolved] = useState(false);
     const [topVerdictMessage, setTopVerdictMessage] = useState("");
 
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const [isProblemMenuOpen, setIsProblemMenuOpen] = useState(false);
+
+    const selectedProblemIds = location?.state?.problems || [];
+
+    console.log("Selected problems Ids", selectedProblemIds);
+    // const [selectedProblems, setSelectedProblems] = useState([]);
+    // setSelectedProblems(selectedProblemIds);
+
     const languages = [
         { value: "cpp", label: "C++" },
         { value: "java", label: "Java" },
@@ -34,7 +46,29 @@ function CodeEditor() {
         { value: "javascript", label: "JavaScript" },
     ];
 
-    /* ================= FETCH PROBLEM ================= */
+    //==========FETCH SELECTED PROBLEMS (FOR POPUP) =============
+    // useEffect(() => {
+
+    //     const fetchSelectedProblems = async () => {
+
+    //         try {
+    //             if (!selectedProblemIds.length) return;
+
+    //             const res = await axios.post("/coding/contest/user/get-selected-problems", {
+    //                 problemIds: selectedProblemIds
+    //             });
+
+    //             if (res.data?.success) {
+    //                 setSelectedProblems(res.data.problems);
+    //             }
+    //         } catch (error) {
+    //             console.log("Error fetching all problems in codeEditor", error)
+    //         }
+    //     };
+    //     fetchSelectedProblems();
+    // }, [selectedProblemIds]);
+
+    /* ================= FETCH SINGLE PROBLEM ================= */
     useEffect(() => {
         const fetchProblemDetails = async () => {
             try {
@@ -352,8 +386,27 @@ function CodeEditor() {
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">Code Editor</h2>
-
+                    {/* LEFT PART  */}
+                    <div className='flex items-center gap-3'>
+                        <button
+                            onClick={() => setIsProblemMenuOpen(true)}
+                            className='bg-[#111827] border border-gray-700
+                        hover:border-blue-500 px-3 py-2
+                        rounded-lg font-semibold'
+                        >
+                            ☰ Problems
+                        </button>
+                        <h2 className="text-xl font-bold">Code Editor</h2>
+                        <button
+                        onClick={() => navigate("/user/coding/contest/ranking")}
+                        className='bg-[#111827] border border-gray-700
+                                   hover:border-yellow-500 px-3 py-2
+                                   rounded-lg font-semibold'
+                        >
+                            🏆 Ranking
+                        </button>
+                    </div>
+                    {/* RIGHT PART  */}
                     <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
@@ -448,8 +501,8 @@ function CodeEditor() {
 
                                     <span
                                         className={`px-2 py-1 rounded-md text-xs font-bold ${runResultsSummary.failedCount === 0
-                                                ? "bg-green-700 text-green-200"
-                                                : "bg-red-700 text-red-200"
+                                            ? "bg-green-700 text-green-200"
+                                            : "bg-red-700 text-red-200"
                                             }`}
                                     >
                                         {runResultsSummary.failedCount === 0}
@@ -520,55 +573,125 @@ function CodeEditor() {
                                 </div>
                             ))}
                         </div>
-                    
-                    {/* submit result box in output panel  */}
-                    {submitResult && (
-                        <div className='mt-4 border border-gray-700
+
+                        {/* submit result box in output panel  */}
+                        {submitResult && (
+                            <div className='mt-4 border border-gray-700
                         rounded-xl p-4 bg-black/20'>
-                            <h4 className='font-bold mb-2'>
-                                Submission Result
-                            </h4>
-                            <div className='flex flex-wrap gap-2 items-center'>
-                                <span
-                                className={`px-3 py-1 rounded-lg text-sm font-bold ${getVerdictBadge(
-                                    submitResult.verdict
-                                )}`}
-                                >
-                                    {submitResult.verdict}
-                                </span>
-
-                                <span className='text-gray-300 text-sm'>
-                                    Score: {" "}
-                                    <span className='text-white font-semibold'>
-                                        {submitResult.score ?? "-"}
+                                <h4 className='font-bold mb-2'>
+                                    Submission Result
+                                </h4>
+                                <div className='flex flex-wrap gap-2 items-center'>
+                                    <span
+                                        className={`px-3 py-1 rounded-lg text-sm font-bold ${getVerdictBadge(
+                                            submitResult.verdict
+                                        )}`}
+                                    >
+                                        {submitResult.verdict}
                                     </span>
-                                </span>
 
-                                {/* runtime/memory show if backend provide  */}
-                                {submitResult.time && (
                                     <span className='text-gray-300 text-sm'>
-                                        Time: {" "}
+                                        Score: {" "}
                                         <span className='text-white font-semibold'>
-                                            {submitResult.time}
+                                            {submitResult.score ?? "-"}
                                         </span>
                                     </span>
-                                )}
-                                {submitResult.memory && (
-                                    <span className='text-gray-300 text-sm'>
-                                        Memory: {" "}
-                                        <span className='text-white font-semibold'>
-                                            {submitResult.memory}
+
+                                    {/* runtime/memory show if backend provide  */}
+                                    {submitResult.time && (
+                                        <span className='text-gray-300 text-sm'>
+                                            Time: {" "}
+                                            <span className='text-white font-semibold'>
+                                                {submitResult.time}
+                                            </span>
                                         </span>
-                                    </span>
-                                )}
+                                    )}
+                                    {submitResult.memory && (
+                                        <span className='text-gray-300 text-sm'>
+                                            Memory: {" "}
+                                            <span className='text-white font-semibold'>
+                                                {submitResult.memory}
+                                            </span>
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                     </div>
                 )}
             </div>
+
+            {/* ================= LEFT PROBLEM POPUP ================= */}
+            {isProblemMenuOpen && (
+                <div className="fixed inset-0 z-50 flex">
+
+                    {/* BACKGROUND */}
+                    <div
+                        className="absolute inset-0 bg-black/60"
+                        onClick={() => setIsProblemMenuOpen(false)}
+                    />
+
+                    {/* POPUP */}
+                    <div className="relative w-[320px] h-full
+                        bg-[#0b1220]
+                        border-r border-gray-700
+                        p-4 overflow-y-auto">
+
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Problems</h3>
+                            <button
+                                onClick={() => setIsProblemMenuOpen(false)}
+                                className="bg-red-600 px-3 py-1 rounded-lg"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {selectedProblemIds?.map((p) => {
+                            const isActive =
+                                String(p._id) === String(problemId);
+
+                            return (
+                                <button
+                                    key={p._id}
+                                    onClick={() => {
+                                        navigate(
+                                            `/user/coding/contest/code-editor/${p._id}`,
+                                            // { state: { problems: selectedProblemIds } }
+                                        );
+                                        setIsProblemMenuOpen(false);
+                                    }}
+                                    className={`w-full text-left p-3 mb-2 rounded-xl border
+                        ${isActive
+                                            ? "border-blue-500 bg-blue-900/20"
+                                            : "border-gray-700 bg-[#111827]"
+                                        }`}
+                                >
+                                    <p className="font-semibold">
+                                        {p.problemNumber}. {p.title}
+                                    </p>
+
+                                    <span className={`text-xs px-2 py-1 rounded-md
+                        ${p.difficulty === "Easy"
+                                            ? "bg-green-700"
+                                            : p.difficulty === "Medium"
+                                                ? "bg-yellow-700"
+                                                : "bg-red-700"
+                                        }`}>
+                                        {p.difficulty}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
         </div>
+
     );
+
+
 }
 
 export default CodeEditor;

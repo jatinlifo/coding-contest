@@ -38,6 +38,7 @@ router.post("/run", async (req, res) => {
 
         for (let tc of testcases) {
             try {
+                console.log("Run time which test case pass", tc);
                 const input = tc?.input ?? "";
                 const expected = tc?.expected ?? "";
 
@@ -60,9 +61,9 @@ router.post("/run", async (req, res) => {
 
                 // ✅ collect all possible outputs
                 const stdout = (data.stdout || "").trim();
-                const stderr = (data.stderr || "").trim();
-                const compileOut = (data.compile_output || "").trim();
-                const message = (data.message || "").trim();
+                const stderr = String(data.stderr || "").trim();
+                const compileOut = String(data.compile_output || "").trim();
+                const message = String(data.message || "").trim();
                 const status = data?.status?.description || "Unknown";
 
                 // ✅ final output priority

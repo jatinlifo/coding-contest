@@ -10,7 +10,8 @@ function ProblemList() {
   const { state } = useLocation();
   const [inviteLink, setInviteLink] = useState("");
 
-  const { roomName, numberOfUsers, contestTime } = state ?? {};
+
+  const { roomName, numberOfUsers, contestTime, roomCode } = state ?? {};
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -133,7 +134,8 @@ function ProblemList() {
               alert("Please select at least one problem before joining");
               return;
             }
-            let roomCode = inviteLink ? getRoomCodeFromLink() : state.roomCode;
+            // let roomCode = inviteLink ? getRoomCodeFromLink() : state.roomCode;
+            // console.log("GET inviteLink", roomCode);
 
             if (!roomCode) {
               alert("Room code not found. Generate link once.")

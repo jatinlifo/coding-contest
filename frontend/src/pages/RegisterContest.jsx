@@ -40,6 +40,8 @@ function RegisterContest() {
       if (res.data.success) {
         const contest = res.data.contest;
 
+        console.log("Register contest data", contest);
+
         // save details in context
         toggleDetails(
           contest.roomName,

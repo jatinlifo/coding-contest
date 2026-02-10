@@ -282,11 +282,14 @@ function CodeEditor() {
       overflow-y-auto md:h-screen">
 
                 {/* Title */}
-                <h2 className="text-2xl font-bold mb-2">
+                <h2 className="text-2xl font-bold mb-2 flex justify-between">
                     Q.{problem.problemNumber} {problem.title}
                     {solved && (
-                        <span className='text-green-400 text-xl' title='Solved'>
-                            ✅
+                        <span className='flex text-sm font-normal items-center'>
+                            solved
+                            <span className='text-green-400 text-sm' title='Solved'>
+                                ✅
+                            </span>
                         </span>
                     )}
                 </h2>
@@ -398,8 +401,8 @@ function CodeEditor() {
                         </button>
                         <h2 className="text-xl font-bold">Code Editor</h2>
                         <button
-                        onClick={() => navigate("/user/coding/contest/ranking")}
-                        className='bg-[#111827] border border-gray-700
+                            onClick={() => navigate("/user/coding/contest/ranking")}
+                            className='bg-[#111827] border border-gray-700
                                    hover:border-yellow-500 px-3 py-2
                                    rounded-lg font-semibold'
                         >
@@ -602,7 +605,7 @@ function CodeEditor() {
                                         <span className='text-gray-300 text-sm'>
                                             Time: {" "}
                                             <span className='text-white font-semibold'>
-                                                {submitResult.time}
+                                                {submitResult.time} ms
                                             </span>
                                         </span>
                                     )}
@@ -610,10 +613,17 @@ function CodeEditor() {
                                         <span className='text-gray-300 text-sm'>
                                             Memory: {" "}
                                             <span className='text-white font-semibold'>
-                                                {submitResult.memory}
+                                                {submitResult.memory} ms
                                             </span>
                                         </span>
                                     )}
+
+                                    <span className='mr-2'>
+                                        testcases passed{" "}
+                                        <span className='text-white font-semibold'>
+                                            {submitResult.passedCount}/{submitResult.total}
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                         )}

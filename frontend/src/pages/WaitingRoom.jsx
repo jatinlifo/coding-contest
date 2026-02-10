@@ -53,13 +53,15 @@ function WaitingRoom() {
     useEffect(() => {
 
         if (loading) return;
-
+        
+        console.log("Inside the socket logic");
         // join room
         socket.emit("join-room", { roomCode });
 
         //listen room updates
         socket.on("room-update", (data) => {
         //    if (isOwner !== true) {
+        console.log("Socket return dta", data);
              setRoom(data);
         //    }
         });
@@ -93,7 +95,7 @@ function WaitingRoom() {
             socket.off("room-closed");
             socket.off("error-message");
         };
-    }, [loading, roomCode, navigate]);
+    }, [!loading, roomCode, navigate]);
 
     const handleLeaveRoom = () => {
 

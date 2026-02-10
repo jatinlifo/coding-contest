@@ -86,7 +86,7 @@ const submitCode = async (req, res) => {
     const testcases = problem.testCases;
     const score = problem.score;
 
-    console.log("Problem find", problem);
+    // console.log("Problem find", problem);
     console.log("test cases", testcases);
 
     if (!code || !language || !Array.isArray(testcases)) {
@@ -114,12 +114,13 @@ const submitCode = async (req, res) => {
 
     for (const tc of testcases) {
       try {
+        console.log("Try test case", tc);
         const submission = await axios.post(
           "https://ce.judge0.com/submissions?wait=true",
           {
             source_code: code,
             language_id,
-            stdin: tc.input ?? "",
+            stdin: tc.input
           },
           {
             headers: { "Content-Type": "application/json" },
@@ -132,15 +133,15 @@ const submitCode = async (req, res) => {
         console.log("SUBMIT DATA", data);
 
         const stdout = (data.stdout || "").trim();
-        const stderr = (data.stderr || "").trim();
-        const compileOut = (data.compile_output || "").trim();
+        const stderr = String(data.stderr || "").trim();
+        const compileOut = String(data.compile_output || "").trim();
         const status = data?.status?.description || "Unknown";
-        time = (data.time || "").trim();
-        memory = (data.memory || "").trim();
+        time = (data?.time || "").trim();
+        memory = String(data?.memory || "").trim();
 
         const actualOutput = stdout || compileOut || stderr || "";
 
-        const expected = (tc.expected ?? "").trim();
+        const expected = (tc.expectedOutput ?? "").trim();
 
         // ✅ If compilation error / runtime error => direct fail
         if (status !== "Accepted") {
@@ -158,6 +159,9 @@ const submitCode = async (req, res) => {
 
         passedCount++;
       } catch (error) {
+        console.error("Judge Error:", error?.response?.data || error.message);
+        console.log("Which test case fail", tc);
+        // console.log("Submit response in catch part", data);
         verdict = "Judge Error";
         failedCount++;
         break;

@@ -38,8 +38,9 @@ const problemSchema = new mongoose.Schema({
     },
     difficulty: {
         type: String,
-        enum: ["Easy", "Medium", "Hard"],
-        default: "Easy"
+        enum: ["easy", "medium", "hard"],
+        default: "easy",
+        lowercase: true,
     },
     constraints: {
         type: String,
@@ -62,6 +63,11 @@ const problemSchema = new mongoose.Schema({
             type: [String],
             enum: ["cpp", "java", "python", "c", "javascript",],
             required: true
+    },
+    boilerplate: {
+        type: Map,
+        of: String,
+        required: true,
     },
     testCases: {
         type: [testCaseSchema],

@@ -1,4 +1,4 @@
-import React , {createContext, useContext, useState} from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 const ProblemContext = createContext();
 
@@ -8,18 +8,18 @@ export const ProblemProvider = ({ children }) => {
 
     const toggleProblem = (problem) => {
         setSelectedProblems((prev) => {
-            const alreadySelected = prev.find((p) => p.questionFrontendId === problem.questionFrontendId);
+            const exists = prev.some(
+                (p) => p._id === problem._id
+            );
 
-            if (alreadySelected) {
-                return prev.filter((p) => p.questionFrontendId !== problem.questionFrontendId);
-            } else {
-                return [...prev, problem];
-            }
+            return exists
+                ? prev.filter((p) => p._id !== problem._id)
+                : [...prev, problem];
         });
     };
 
     return (
-        <ProblemContext.Provider value={{ selectedProblems, toggleProblem}}>
+        <ProblemContext.Provider value={{ selectedProblems, toggleProblem }}>
             {children}
         </ProblemContext.Provider>
     );

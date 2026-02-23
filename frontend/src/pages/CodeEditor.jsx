@@ -39,6 +39,11 @@ function CodeEditor() {
     // const [selectedProblems, setSelectedProblems] = useState([]);
     // setSelectedProblems(selectedProblemIds);
 
+    const difficultyMap = {
+        easy: { label: "Easy", color: "text-green-400" },
+        medium: { label: "Medium", color: "text-yellow-400" },
+        hard: { label: "Hard", color: "text-red-400" },
+    };
     const languages = [
         { value: "cpp", label: "C++" },
         { value: "java", label: "Java" },
@@ -79,6 +84,18 @@ function CodeEditor() {
 
                 if (data?.success) {
                     setProblem(data.problem)
+
+                    //Boilerplate code
+                    const defaultLang = language;
+
+                    const boilerplateCode = data.problem?.boilerplate;
+
+                    if (boilerplateCode[defaultLang]) {
+                        setCode(boilerplateCode[defaultLang])
+                    } else {
+                        setCode("");
+                    }
+
 
                     //public testCases only
                     const formatted = data.problem.testCases.map(tc => ({
@@ -318,15 +335,10 @@ function CodeEditor() {
 
                 {/* Difficulty */}
                 <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-bold mb-5
-        ${problem.difficulty === "Easy"
-                            ? "bg-green-700 text-green-200"
-                            : problem.difficulty === "Medium"
-                                ? "bg-yellow-700 text-yellow-200"
-                                : "bg-red-700 text-red-200"
-                        }`}
+                    className={`inline-block  py-1 rounded-full text-lg font-bold mb-5
+        ${difficultyMap[problem.difficulty].color}`}
                 >
-                    {problem.difficulty}
+                    {difficultyMap[problem.difficulty].label}
                 </span>
 
                 {/* Description */}
@@ -412,7 +424,16 @@ function CodeEditor() {
                     {/* RIGHT PART  */}
                     <select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
+                        onChange={(e) => {
+                            const newLang = e.target.value;
+                            setLanguage(newLang);
+
+                            if (problem?.boilerplate?.[newLang]) {
+                                setCode(problem.boilerplate[newLang]);
+                            } else {
+                                setCode("");
+                            }
+                        }}
                         className="bg-[#111827] text-white border border-gray-700 rounded-lg px-3 py-2 
             focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
@@ -428,7 +449,6 @@ function CodeEditor() {
                 <div className="h-[55vh] md:h-[65vh] bg-[#111827] border border-gray-700 rounded-xl overflow-hidden">
                     <Editor
                         height="100%"
-                        defaultLanguage={language}
                         language={language}
                         value={code}
                         theme="vs-dark"
@@ -442,6 +462,8 @@ function CodeEditor() {
                             cursorSmoothCaretAnimation: "on",
                             wordWrap: "on",
                             automaticLayout: true,
+                            insertSpaces: true,
+                            tabSize: 4,
                             scrollbar: {
                                 vertical: "auto",
                                 horizontal: "auto",
@@ -579,52 +601,83 @@ function CodeEditor() {
 
                         {/* submit result box in output panel  */}
                         {submitResult && (
-                            <div className='mt-4 border border-gray-700
-                        rounded-xl p-4 bg-black/20'>
-                                <h4 className='font-bold mb-2'>
+                            <div
+                                className={`mt-4 rounded-xl p-4 border ${submitResult.verdict === "Accepted"
+                                    ? "border-green-500 bg-green-900/20"
+                                    : "border-red-500 bg-red-900/20"
+                                    }`}
+                            >
+                                <h4 className="font-bold mb-2">
                                     Submission Result
                                 </h4>
-                                <div className='flex flex-wrap gap-2 items-center'>
+
+                                <div className="flex flex-wrap gap-2 items-center">
                                     <span
-                                        className={`px-3 py-1 rounded-lg text-sm font-bold ${getVerdictBadge(
-                                            submitResult.verdict
-                                        )}`}
+                                        className={`px-3 py-1 rounded-lg text-sm font-bold ${submitResult.verdict === "Accepted"
+                                            ? "bg-green-700 text-green-200"
+                                            : "bg-red-700 text-red-200"
+                                            }`}
                                     >
                                         {submitResult.verdict}
                                     </span>
 
-                                    <span className='text-gray-300 text-sm'>
-                                        Score: {" "}
-                                        <span className='text-white font-semibold'>
+                                    <span className="text-gray-300 text-sm">
+                                        Score:{" "}
+                                        <span className="text-white font-semibold">
                                             {submitResult.score ?? "-"}
                                         </span>
                                     </span>
 
-                                    {/* runtime/memory show if backend provide  */}
                                     {submitResult.time && (
-                                        <span className='text-gray-300 text-sm'>
-                                            Time: {" "}
-                                            <span className='text-white font-semibold'>
+                                        <span className="text-gray-300 text-sm">
+                                            Time:{" "}
+                                            <span className="text-white font-semibold">
                                                 {submitResult.time} ms
                                             </span>
                                         </span>
                                     )}
+
                                     {submitResult.memory && (
-                                        <span className='text-gray-300 text-sm'>
-                                            Memory: {" "}
-                                            <span className='text-white font-semibold'>
-                                                {submitResult.memory} ms
+                                        <span className="text-gray-300 text-sm">
+                                            Memory:{" "}
+                                            <span className="text-white font-semibold">
+                                                {submitResult.memory} KB
                                             </span>
                                         </span>
                                     )}
 
-                                    <span className='mr-2'>
-                                        testcases passed{" "}
-                                        <span className='text-white font-semibold'>
+                                    <span className="mr-2 text-gray-300 text-sm">
+                                        Testcases Passed{" "}
+                                        <span className="text-white font-semibold">
                                             {submitResult.passedCount}/{submitResult.total}
                                         </span>
                                     </span>
                                 </div>
+
+                                {/* 🔥 Failed Test Case Section */}
+                                {submitResult.verdict !== "Accepted" &&
+                                    submitResult.failedTestCase && (
+                                        <div className="mt-4 border-t border-gray-700 pt-3">
+                                            <h5 className="text-red-400 font-semibold mb-2">
+                                                Failed Test Case
+                                            </h5>
+
+                                            <p className="text-gray-400 text-sm">Input:</p>
+                                            <pre className="bg-black/40 p-2 rounded-lg text-sm overflow-x-auto">
+                                                {submitResult.failedTestCase.input}
+                                            </pre>
+
+                                            <p className="text-gray-400 text-sm mt-2">Expected:</p>
+                                            <pre className="bg-black/40 p-2 rounded-lg text-sm overflow-x-auto text-green-300">
+                                                {submitResult.failedTestCase.expected}
+                                            </pre>
+
+                                            <p className="text-gray-400 text-sm mt-2">Your Output:</p>
+                                            <pre className="bg-black/40 p-2 rounded-lg text-sm overflow-x-auto text-red-300">
+                                                {submitResult.failedTestCase.actual}
+                                            </pre>
+                                        </div>
+                                    )}
                             </div>
                         )}
                     </div>
@@ -642,7 +695,7 @@ function CodeEditor() {
                     />
 
                     {/* POPUP */}
-                    <div className="relative w-[320px] h-full
+                    <div className="relative w-[450px] h-full
                         bg-[#0b1220]
                         border-r border-gray-700
                         p-4 overflow-y-auto">
@@ -682,13 +735,9 @@ function CodeEditor() {
                                     </p>
 
                                     <span className={`text-xs px-2 py-1 rounded-md
-                        ${p.difficulty === "Easy"
-                                            ? "bg-green-700"
-                                            : p.difficulty === "Medium"
-                                                ? "bg-yellow-700"
-                                                : "bg-red-700"
+                                        ${difficultyMap[p?.difficulty].color
                                         }`}>
-                                        {p.difficulty}
+                                        {difficultyMap[p?.difficulty].label}
                                     </span>
                                 </button>
                             );
@@ -700,8 +749,6 @@ function CodeEditor() {
         </div>
 
     );
-
-
 }
 
 export default CodeEditor;

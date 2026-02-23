@@ -105,26 +105,31 @@ io.on("connection", (socket) => {
 
             const contest = await Contest.findOne({ roomCode });
 
-            if (!contest || contest.status !== "waiting") {
+            if (!contest) {
                 return;
             }
 
-            //Duplicate join prevent
-            const alreadyJoined = contest.participants.some(
-                (p) => p.userId.toString() === userId.toString()
-            );
-
-            if (!alreadyJoined) {
-                contest.participants.push({ userId });
-                await contest.save();
-            }
-            // socket ko specific contest room me add karo
             socket.join(roomCode);
 
             console.log(`👤 ${userName} joined room ${roomCode}`);
 
-            //updated room state sabko bhejo
-            await emitRoomState(io, roomCode);
+            //Duplicate join prevent
+            if (contest.status === "waiting") {
+
+                const alreadyJoined = contest.participants.some(
+                    (p) => p.userId.toString() === userId.toString()
+                );
+                
+                if (!alreadyJoined) {
+                    contest.participants.push({ userId });
+                    await contest.save();
+                }
+                // socket ko specific contest room me add karo
+                
+                
+                //updated room state sabko bhejo
+                await emitRoomState(io, roomCode);
+            }
 
         } catch (error) {
             console.error("JOIN ROOM ERROR: ", error);

@@ -19,7 +19,7 @@ function Navbar() {
     //navigate the login page
     const handleLogin = () => {
         navigate('/user/login', {
-            state: {redirectTo: "/user/contest"}
+            state: { redirectTo: "/user/contest" }
         });
     }
     //navigate the profile page
@@ -31,11 +31,17 @@ function Navbar() {
     const handleLogout = Logout()
 
     return (
-        <nav className='relative bg-gray-900 text-white px-4 md:px-20 py-4 md:py-6 font-bold'>
+        <nav className='relative bg-gray-900  text-white h-30 px-4 md:px-20 font-bold'>
             {/* Top Bar  */}
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between  h-30'>
                 {/* LOGO  */}
-                <div className='font-bold text-xl'>logo</div>
+                <div className="h-auto mt-5 w-auto flex justify-between items-center">
+                    <img
+                        src="/logo1.png"
+                        alt="CodeRoom Logo"
+                        className="md:h-50 h-40 w-auto"
+                    />
+                </div>
                 {/* Desktop Menu  */}
                 <ul className='hidden md:flex gap-6 font-bold'>
                     <li><Link to="/">Home</Link></li>

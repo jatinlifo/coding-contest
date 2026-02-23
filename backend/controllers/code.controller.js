@@ -84,7 +84,7 @@ const submitCode = async (req, res) => {
         })
     }
     const testcases = problem.testCases;
-    const score = problem.score;
+    let score = problem.score;
 
     // console.log("Problem find", problem);
     console.log("test cases", testcases);
@@ -111,6 +111,7 @@ const submitCode = async (req, res) => {
     let failedCount = 0;
     let time = 0;
     let memory = 0;
+    let failedTestCase = null;
 
     for (const tc of testcases) {
       try {
@@ -147,13 +148,27 @@ const submitCode = async (req, res) => {
         if (status !== "Accepted") {
           verdict = status; // "Compilation Error", "Runtime Error", etc.
           failedCount++;
+
+          failedTestCase = {
+            input: tc.input,
+            expected: tc.expectedOutput,
+            actual: actualOutput,
+            status,
+          };
           break;
         }
-
+ 
         // ✅ output mismatch => Wrong Answer
         if (expected && actualOutput.trim() !== expected) {
           verdict = "Wrong Answer";
           failedCount++;
+
+          failedTestCase = {
+            input: tc.input,
+            expected,
+            actual: actualOutput,
+            status
+          };
           break;
         }
 
@@ -170,6 +185,10 @@ const submitCode = async (req, res) => {
 
     const total = testcases.length;
 
+    if (failedTestCase) {
+        score = 0;
+    }
+
     return res.json({
       success: true,
       verdict,
@@ -179,6 +198,7 @@ const submitCode = async (req, res) => {
       score,
       time,
       memory,
+      failedTestCase
     });
   } catch (err) {
     console.error("SUBMIT ERROR:", err);
@@ -200,6 +220,7 @@ const addProblem = async (req, res) => {
             memoryLimit,
             languages,
             testCases,
+            boilerplate
         } = req.body;
 
         /* ================= VALIDATION ================= */
@@ -209,7 +230,8 @@ const addProblem = async (req, res) => {
             !description ||
             !difficulty ||
             !languages ||
-            !testCases
+            !testCases ||
+            !boilerplate
         ) {
             return res.status(400).json({
                 success: false,
@@ -244,6 +266,7 @@ const addProblem = async (req, res) => {
             memoryLimit,
             languages,
             testCases,
+            boilerplate,
         });
 
         return res.status(201).json({
@@ -352,7 +375,7 @@ const getSingleProblem = async (req, res) => {
         //separate public testcases
 
         const publicTestCases = problem.testCases
-            .filter(tc => tc.isHidden == false)
+            .filter(tc => tc.isHidden === false)
             .map(tc => ({
                 input: tc.input,
                 expectedOutput: tc.expectedOutput,
@@ -373,6 +396,7 @@ const getSingleProblem = async (req, res) => {
                     languages: problem.languages,
                     testCases: publicTestCases,
                     explanation: problem.explanation,
+                    boilerplate: problem. boilerplate,
                 },
             });
     } catch (error) {

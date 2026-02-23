@@ -13,6 +13,12 @@ function ProblemList() {
 
   const { roomName, numberOfUsers, contestTime, roomCode } = state ?? {};
 
+  const difficultyMap = {
+    easy: { label: "Easy", color: "text-green-400" },
+    medium: { label: "Medium", color: "text-yellow-400" },
+    hard: { label: "Hard", color: "text-red-400" },
+  };
+
   useEffect(() => {
     const fetchProblems = async () => {
       try {
@@ -73,7 +79,7 @@ function ProblemList() {
         alert("Failed to generate ivite link")
       }
       setInviteLink(link);
-      
+
       //copy
       // await navigator.clipboard.writeText(link);
       alert("Invite link generated");
@@ -128,8 +134,8 @@ function ProblemList() {
           className="bg-blue-600 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition">
           {inviteLink ? "Copy Link" : " Generate Link"}
         </button>
-          <button
-          onClick={()=> {
+        <button
+          onClick={() => {
             if (selectedProblems.length === 0) {
               alert("Please select at least one problem before joining");
               return;
@@ -151,9 +157,9 @@ function ProblemList() {
             });
           }}
           className='bg-green-600 px-5 py-1 rounded-full font-semibold hover:bg-green-700 transition'
-          >
-            Join
-          </button>
+        >
+          Join
+        </button>
       </div>
 
       {/* ===== HEADER ===== */}
@@ -199,14 +205,9 @@ function ProblemList() {
                   </td>
 
                   <td
-                    className={`py-3 px-4 font-semibold ${p.difficulty === 'Easy'
-                      ? 'text-green-400'
-                      : p.difficulty === 'Medium'
-                        ? 'text-yellow-400'
-                        : 'text-red-400'
-                      }`}
+                    className={`py-3 px-4 font-semibold ${difficultyMap[p.difficulty]?.color}`}
                   >
-                    {p.difficulty}
+                    {difficultyMap[p.difficulty]?.label}
                   </td>
 
                   <td className="py-3 px-4 text-center">

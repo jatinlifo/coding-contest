@@ -9,6 +9,12 @@ function StartContest() {
 
     console.log("Problmes ids comes start contest", problems);
 
+    const difficultyMap = {
+    easy: { label: "Easy", color: "text-green-400" },
+    medium: { label: "Medium", color: "text-yellow-400" },
+    hard: { label: "Hard", color: "text-red-400" },
+  };
+
     // ================ CLICK HANDLER
     const handleProblemClick = (problemId) => {
         navigate(`/user/coding/contest/code-editor/${problemId}`, {
@@ -63,14 +69,10 @@ function StartContest() {
               <div className="col-span-3">
                 <span
                   className={
-                    problem.difficulty === "Easy"
-                      ? "text-green-400"
-                      : problem.difficulty === "Medium"
-                      ? "text-yellow-400"
-                      : "text-red-400"
+                  difficultyMap[problem?.difficulty].color
                   }
                 >
-                  {problem.difficulty}
+                  {difficultyMap[problem?.difficulty].label}
                 </span>
               </div>
             </div>

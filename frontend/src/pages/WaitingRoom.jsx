@@ -68,6 +68,7 @@ function WaitingRoom() {
 
         //contest start
         socket.on("contest-started", ({roomCode, problems, contestTime}) => {
+            console.log("Contest started event recieved")
             console.log("Contest time to share start contest", contestTime);
             console.log("Problems to share start contest", problems);
             navigate(`/user/coding/contest/start-contest/${roomCode}`, {

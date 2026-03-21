@@ -20,27 +20,34 @@ const allowOrigins = ["http://localhost:5173", process.env.FRONTEND_URL]
 
 app.use(cookieParser())
 
+
+//just check request come or not
+app.use((req, res, next) => {
+  console.log("Request hit:", req.method, req.url);
+  next();
+});
+
 /* ===========================
    MIDDLEWARES
 =========================== */
 
-// app.use(cors({
-//     origin: function(origin, callback) {
-
-//         if (!origin || allowOrigins.includes(origin)) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error("Not allowed by CORS"));
-//         }
-//     },
-//     credentials: true,
-// }));
-
-
 app.use(cors({
-    origin: "https://coding-contest-ten.vercel.app",
-    credentials: true
+    origin: function(origin, callback) {
+
+        if (!origin || allowOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
 }));
+
+
+// app.use(cors({
+//     origin: "https://coding-contest-ten.vercel.app",
+//     credentials: true
+// }));
 
 //data body sa aa raha hu allow karo
 app.use(express.json());
@@ -66,26 +73,26 @@ const server = http.createServer(app);
      SOCKET.IO SETUP
 =========================== */
 
-// const io = new Server(server, {
-//     cors: {
-//         origin: (origin, callback) => {
-//             if (!origin || allowOrigins.includes(origin)) {
-//                 callback(null, true);
-//             } else {
-//                 callback(new Error("Not allowed by CORS"))
-//             }
-//         },
-//         credentials: true,
-//     }
-// });
-
 const io = new Server(server, {
-  cors: {
-    origin: "https://coding-contest-ten.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    cors: {
+        origin: (origin, callback) => {
+            if (!origin || allowOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"))
+            }
+        },
+        credentials: true,
+    }
 });
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://coding-contest-ten.vercel.app",
+//     methods: ["GET", "POST"],
+//     credentials: true
+//   }
+// });
 
 // io.use(verifySocketJWT);
 // Room ka latest satae sabko bhene ka liya

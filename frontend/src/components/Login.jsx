@@ -35,7 +35,7 @@ function Login() {
         console.log("Password: ", password);
 
         try {
-            const response = await axios.post('/coding/contest/user/login',
+            const response = await axios.post('https://coding-contest-8pre.onrender.com/coding/contest/user/login',
                 { email, password },
                 { withCredentials: true }
             );

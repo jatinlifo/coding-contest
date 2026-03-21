@@ -68,13 +68,14 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: (origin, callback) => {
-            if (!origin || allowOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"))
-            }
-        },
+        // origin: (origin, callback) => {
+        //     if (!origin || allowOrigins.includes(origin)) {
+        //         callback(null, true);
+        //     } else {
+        //         callback(new Error("Not allowed by CORS"))
+        //     }
+        // },
+        origin: "*",
         methods: ["GET", "POST"],
         credentials: true,
     }

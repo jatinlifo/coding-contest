@@ -22,10 +22,10 @@ app.use(cookieParser())
 
 
 //just check request come or not
-app.use((req, res, next) => {
-  console.log("Request hit:", req.method, req.url);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("Request hit:", req.method, req.url);
+//   next();
+// });
 
 /* ===========================
    MIDDLEWARES
@@ -91,7 +91,6 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: allowOrigins,
-    methods: ["GET", "POST"],
     credentials: true
   }
 });

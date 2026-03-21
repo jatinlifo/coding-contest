@@ -3,6 +3,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import api from '../api/axios'
 
 
 function Login() {
@@ -35,7 +36,7 @@ function Login() {
         console.log("Password: ", password);
 
         try {
-            const response = await axios.post('https://coding-contest-8pre.onrender.com/coding/contest/user/login',
+            const response = await api.post('/coding/contest/user/login',
                 { email, password },
                 { withCredentials: true }
             );

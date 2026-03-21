@@ -6,6 +6,7 @@ import { useProblem } from '../context/ProblemContext';
 import { useLocation, useParams } from 'react-router-dom';
 import Editor from "@monaco-editor/react";   // ⭐ ADDED
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 function CodeEditor() {
 
@@ -77,7 +78,7 @@ function CodeEditor() {
     useEffect(() => {
         const fetchProblemDetails = async () => {
             try {
-                const res = await axios.get(`/coding/contest/user/getsingleproblem/${problemId}`);
+                const res = await api.get(`/coding/contest/user/getsingleproblem/${problemId}`);
                 const data = res.data;
 
                 console.log("Data is ", data);
@@ -125,7 +126,7 @@ function CodeEditor() {
         }
 
         try {
-            await axios.post("/coding/contest/user/save-code", {
+            await api.post("/coding/contest/user/save-code", {
                 userId,
                 problemId,
                 language,
@@ -188,7 +189,7 @@ function CodeEditor() {
                     status: "Running...",
                 })));
 
-            const res = await axios.post("/coding/api/judge/run", {
+            const res = await api.post("/coding/api/judge/run", {
                 code,
                 language,
                 testcases: testCases.map(tc => ({
@@ -249,7 +250,7 @@ function CodeEditor() {
         try {
             setSubmitting(true);
             setTopVerdictMessage("");
-            const res = await axios.post(
+            const res = await api.post(
                 "/coding/api/judge/submit",
                 {
                     // userId,

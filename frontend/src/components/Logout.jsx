@@ -1,6 +1,7 @@
 import React from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import api from '../api/axios';
 
 
 function Logout() {
@@ -10,7 +11,7 @@ function Logout() {
     const handleLogout = async () => {
 
         try {
-            const response = await axios.post("/coding/contest/user/logout",);
+            const response = await api.post("/coding/contest/user/logout",);
 
             if (response.data.sucess) {
                 console.log("User logged out successfully")

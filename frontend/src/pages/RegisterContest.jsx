@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOwnerName } from '../context/OwnerContext';
 import axios from 'axios';
+import api from '../api/axios';
 
 function RegisterContest() {
   const [roomName, setRoomName] = useState('');
@@ -27,7 +28,7 @@ function RegisterContest() {
 
     try {
 
-      const res = await axios.post(
+      const res = await api.post(
         "/coding/contest/user/create-contest",
         {
           roomName,

@@ -2,6 +2,7 @@ import { useParams, useNavigate, redirect } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
 
 
 /**
@@ -30,7 +31,7 @@ function JoinRoom() {
         const verifyRoom = async () => {
 
             try {
-                const res = await axios.get(
+                const res = await api.get(
                     `/coding/contest/user/verify-room/${roomCode}`,
                     { withCredentials: true }
                 );
@@ -62,7 +63,7 @@ function JoinRoom() {
         try {
             console.log("Room code is", roomCode);
             setJoining(true);
-            const res = await axios.post(
+            const res = await api.post(
                 `/coding/contest/user/join/${roomCode}`,
                 {},
                 { withCredentials: true }

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react';
 import axios from 'axios';
+import api from '../api/axios';
 
 function Token() {
 
@@ -10,7 +11,7 @@ function Token() {
                 onClick={async () => {
 
                     try {
-                        const res = await axios.post(
+                        const res = await api.post(
                             "/coding/contest/user/refresh-token" // relative path → proxy kaam karega
                              // cookie / credentials send karne ke liye
                         );

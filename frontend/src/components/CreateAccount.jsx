@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 function CreateAccount() {
 
@@ -43,7 +44,7 @@ function CreateAccount() {
         console.log("Password: ", password);
 
         try {
-            const response = await axios.post('/coding/contest/user/create-account', 
+            const response = await api.post('/coding/contest/user/create-account', 
                 { fullname, dob, email, password },
                 { withCredentials: true }
             );

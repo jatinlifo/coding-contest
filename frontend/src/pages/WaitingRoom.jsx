@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext';
 import {socket} from '../socket.js'
+import api from '../api/axios.js';
 
 function WaitingRoom() {
 
@@ -25,7 +26,7 @@ function WaitingRoom() {
         const fetchRoom = async () => {
 
             try {
-                const res = await axios.get(
+                const res = await api.get(
                     `/coding/contest/user/waiting-room/${roomCode}`,
                     { withCredentials: true }
                 );

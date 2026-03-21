@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useProblem } from '../context/ProblemContext';
+import api from '../api/axios';
 
 function ProblemList() {
   const [problems, setProblems] = useState([]);
@@ -22,7 +23,7 @@ function ProblemList() {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await axios.get('/coding/contest/user/all-problems');
+        const res = await api.get('/coding/contest/user/all-problems');
         setProblems(res.data.problems);
       } catch (error) {
         console.log('Error fetching problems:', error);
@@ -64,7 +65,7 @@ function ProblemList() {
         alert("Invite link copied! Share it with your friends.")
         return;
       }
-      const res = await axios.post(
+      const res = await api.post(
         "/coding/contest/user/generate-link",
         {},
         {

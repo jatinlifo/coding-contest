@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 const optionsAccessToken = {
     httpOnly: true,
     secure: true,
-    sameSite: "None",
+    sameSite: "None", // "Lax" for local
     maxAge: 10 * 60 * 1000
 }
 

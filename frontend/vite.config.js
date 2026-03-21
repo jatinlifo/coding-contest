@@ -19,7 +19,7 @@ import tailwindcss from '@tailwindcss/vite'
 // })
 
 
-const backendURL = "https://coding-contest-8pre.onrender.com/"
+const backendURL = "https://coding-contest-8pre.onrender.com"
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {

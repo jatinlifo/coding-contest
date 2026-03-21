@@ -7,14 +7,14 @@ import mongoose from 'mongoose'
 const optionsAccessToken = {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "None",
     maxAge: 10 * 60 * 1000
 }
 
 const optionsRefreshToken = {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "None",
     maxAge: 10 * 24 * 60 * 60 * 1000
 }
 

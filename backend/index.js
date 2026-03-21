@@ -75,11 +75,12 @@ const io = new Server(server, {
                 callback(new Error("Not allowed by CORS"))
             }
         },
+        methods: ["GET", "POST"],
         credentials: true,
     }
 });
 
-io.use(verifySocketJWT);
+// io.use(verifySocketJWT);
 // Room ka latest satae sabko bhene ka liya
 const emitRoomState = async (io, roomCode) => {
 
@@ -168,7 +169,7 @@ io.on("connection", (socket) => {
             }
 
             //Owner leaves -> ROOM DESTROY
-            if (contest.ownerId.toString === userId.toString) {
+            if (contest.ownerId.toString() === userId.toString()) {
 
                 contest.status = "cancelled";
                 await contest.save();
@@ -271,7 +272,7 @@ io.on("connection", (socket) => {
 
                 //participant remove
                 contest.participants = contest.participants.filter(
-                    (p) => p.userId.toString() !== socket._id.toString()
+                    (p) => p.userId.toString() !== userId.toString()
                 );
 
                 await contest.save();

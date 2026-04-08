@@ -74,7 +74,13 @@ const generateLink = async (req, res) => {
         }
 
         //Create invite link
-        const inviteLink = `${process.env.FRONTEND_URL}/join/${contest.roomCode}`;
+        const baseUrl =
+            req.headers.origin ||
+            (process.env.NODE_ENV === "production"
+                ? process.env.FRONTEND_URL_PROD
+                : process.env.FRONTEND_URL_DEV);
+                
+        const inviteLink = `${baseUrl}/join/${contest.roomCode}`;
 
         return res
             .status(200)
@@ -109,29 +115,29 @@ const getExistingLink = async (req, res) => {
 
         if (!contest) {
             return res
-            .status(404)
-            .json({
-                success: false,
-                message: "No active contest",
-            });
+                .status(404)
+                .json({
+                    success: false,
+                    message: "No active contest",
+                });
         }
 
         const inviteLink = `${process.env.FRONTEND_URL}/join/${contest.roomCode}`;
 
         return res
-        .status(200)
-        .json({
-            success: true,
-            inviteLink,
-            roomCode: contest.roomCode,
-        });
+            .status(200)
+            .json({
+                success: true,
+                inviteLink,
+                roomCode: contest.roomCode,
+            });
     } catch (error) {
         return res
-        .status(500)
-        .json({
-            success: false,
-            message: "Server error",
-        });
+            .status(500)
+            .json({
+                success: false,
+                message: "Server error",
+            });
     }
 };
 

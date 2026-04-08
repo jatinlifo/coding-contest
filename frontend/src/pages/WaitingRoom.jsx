@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
-import {socket} from '../socket.js'
+import { socket } from '../socket.js'
 import api from '../api/axios.js';
 
 function WaitingRoom() {
@@ -13,9 +13,10 @@ function WaitingRoom() {
     const [room, setRoom] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
+    const [startContest , setStartContest] = useState(false);
 
     const { state } = useLocation();
-    const {roomName, contestTime, selectedProblems} = state || {};
+    const { roomName, contestTime, selectedProblems } = state || {};
 
     // console.log("Owner comes", isOwner);
     console.log("Problems IDS", selectedProblems);
@@ -53,21 +54,21 @@ function WaitingRoom() {
     useEffect(() => {
 
         if (loading) return;
-        
+
         console.log("Inside the socket logic");
         // join room
         socket.emit("join-room", { roomCode });
 
         //listen room updates
         socket.on("room-update", (data) => {
-        //    if (isOwner !== true) {
-        console.log("Socket return dta", data);
-             setRoom(data);
-        //    }
+            //    if (isOwner !== true) {
+            console.log("Socket return dta", data);
+            setRoom(data);
+            //    }
         });
 
         //contest start
-        socket.on("contest-started", ({roomCode, problems, contestTime}) => {
+        socket.on("contest-started", ({ roomCode, problems, contestTime }) => {
             console.log("Contest started event recieved")
             console.log("Contest time to share start contest", contestTime);
             console.log("Problems to share start contest", problems);
@@ -122,13 +123,20 @@ function WaitingRoom() {
             alert("Please select at least on problem before starting the contest");
             return;
         }
+
+        setStartContest(true);
         socket.emit("start-contest", {
             roomCode,
             problems: selectedProblems,
             contestTime
         });
     };
-    
+
+    const joinContest = async () => {
+
+        
+    }
+
     console.log("Loading", loading);
     console.log("ROOM", room);
     if (loading || !room) {
@@ -212,9 +220,9 @@ function WaitingRoom() {
 
                 {/* ===== ACTION AREA ===== */}
                 <div className="flex md:justify-between">
-                    <button 
-                    onClick={handleLeaveRoom}
-                    className='bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full font-bold'
+                    <button
+                        onClick={handleLeaveRoom}
+                        className='bg-red-600 hover:bg-red-700 px-8 py-1 rounded-full font-bold'
                     >
                         🚪Leave Room
                     </button>
@@ -226,9 +234,16 @@ function WaitingRoom() {
                             🚀 Start Contest
                         </button>
                     ) : (
-                        <p className="text-yellow-400 font-semibold text-center md:text-right">
-                            ⏳ Waiting for owner to start the contest...
-                        </p>
+                        <div className='flex items-center flex-col gap-5'>
+                            <button className='bg-green-600 hover:bg-green-700 transition px-5 py-1 rounded-full font-bold text-lg'
+                            onClick={joinContest}
+                            >
+                                Join
+                            </button>
+                            <p className="text-yellow-400 font-semibold text-center md:text-right">
+                                ⏳ Waiting for owner to start the contest...
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>

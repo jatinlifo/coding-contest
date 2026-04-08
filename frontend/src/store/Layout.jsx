@@ -6,6 +6,7 @@ import Hero from '../components/Hero';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useEffect } from 'react';
+import api from '../api/axios';
 
 
 
@@ -20,7 +21,7 @@ function Layout() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.post("/coding/contest/user/refresh-token",{}, {
+        const res = await api.post("/coding/contest/user/refresh-token",{}, {
           withCredentials: true,
         });
         if (res.data.sucess) {

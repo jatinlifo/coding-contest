@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useProblem } from '../context/ProblemContext';
 import api from '../api/axios';

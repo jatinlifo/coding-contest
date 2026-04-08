@@ -6,8 +6,10 @@ export const verifySocketJWT = async (socket, next) => {
 
     try {
         //cookies read karo
-        const cookies  = cookie.parse(socket.handshake.headers.cookie || "");
-        const token = cookies.accessToken;
+        // const cookies  = cookie.parse(socket.handshake.headers.cookie || "");
+        const token = socket.handshake.auth.token;
+
+        console.log("socket token", token);
 
         if (!token) {
             return next (new Error ("Unauthorized"));

@@ -1,9 +1,8 @@
-import React from 'react'
 import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
+import { socket } from '../socket'
 
 
 function Login() {
@@ -46,6 +45,14 @@ function Login() {
                 setIsLoggedIn(true);
                 const user = response.data.user
                 setUserId(user._id);
+                console.log("Login response", response.data);
+                // token save for socket
+                localStorage.setItem('socketToken', response.data.accessToken);
+                socket.auth = {
+                    token: response.data.accessToken
+                };
+
+                socket.connect();
                 setTimeout(() => {
                     navigate(redirectTo)
                 }, 1000)

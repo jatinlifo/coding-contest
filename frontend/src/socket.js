@@ -1,12 +1,10 @@
-import { io } from 'socket.io-client'
+import { io } from "socket.io-client";
 
-const backendURL = "https://coding-contest-8pre.onrender.com";
+const SOCKET_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8001";
 
-// export const socket = io("http://localhost:8001", {
-//     withCredentials: true, // cookies ke liya
-// })
-
-export const socket = io(backendURL, {
-    withCredentials: true, // cookies ke liya
+export const socket = io(SOCKET_URL, {
+    autoConnect: false,
+    withCredentials: true,
     transports: ["websocket", "polling"],
-})
+}); 

@@ -2,6 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios';
+import { socket } from '../socket';
 
 
 function Logout() {
@@ -14,6 +15,8 @@ function Logout() {
             const response = await api.post("/coding/contest/user/logout",);
 
             if (response.data.sucess) {
+                localStorage.removeItem("socketToken");
+                socket.disconnect();
                 console.log("User logged out successfully")
                 setIsLoggedIn(false);
             } else {

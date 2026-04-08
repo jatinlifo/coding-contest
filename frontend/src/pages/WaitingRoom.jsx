@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import axios from 'axios'
 import { useAuth } from '../context/AuthContext';
 import {socket} from '../socket.js'
 import api from '../api/axios.js';

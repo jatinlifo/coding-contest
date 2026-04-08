@@ -95,7 +95,7 @@ const io = new Server(server, {
   }
 });
 
-// io.use(verifySocketJWT);
+io.use(verifySocketJWT);
 // Room ka latest satae sabko bhene ka liya
 const emitRoomState = async (io, roomCode) => {
 

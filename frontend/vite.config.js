@@ -22,15 +22,15 @@ import tailwindcss from '@tailwindcss/vite'
 const backendURL = "https://coding-contest-8pre.onrender.com"
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    proxy: {
-      '/coding': {
-        target: backendURL,
-        changeOrigin: true,
-        secure: false,
-      },
-    }
-  },
+  // server: {
+  //   proxy: {
+  //     '/coding': {
+  //       target: backendURL,
+  //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //   }
+  // },
 })
 
 

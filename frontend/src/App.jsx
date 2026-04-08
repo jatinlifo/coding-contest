@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Login from './components/Login'
 import axios from 'axios'
 import About from './pages/About'
@@ -20,10 +20,20 @@ import JoinRoom from './pages/JoinRoom'
 import WaitingRoom from './pages/WaitingRoom'
 import StartContest from './pages/StartContest'
 import ContestRanking from './pages/ContestRanking'
+import { socket } from './socket'
 
 console.log("Problem Provider", ProblemProvider);
 
 function App() {
+
+  useEffect(() => {
+    const token = localStorage.getItem('socketToken');
+
+    if (token) {
+      socket.auth = {token};
+      socket.connect();
+    }
+  }, [])
 
   return (
     <>
